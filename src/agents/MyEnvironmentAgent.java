@@ -1,14 +1,23 @@
 package agents;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import base.Environment;
+import classes.Hole;
+import classes.TileStack;
+import gridworld.GridPosition;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import my.MyEnvironment;
+import classes.ConsoleColors;
 //import platform.Log;
 
 /**
@@ -16,7 +25,7 @@ import jade.lang.acl.MessageTemplate;
  */
 public class MyEnvironmentAgent extends Agent {
     //---------------------------------
-    protected Environment env;
+    protected MyEnvironment env;
     //---------------------------------
     /**
      * The serial UID.
@@ -79,6 +88,20 @@ public class MyEnvironmentAgent extends Agent {
     @Override
     protected void setup() {
     	//holesPositions, obstacles, tileStackPositions
+    	Map<GridPosition, Hole> holesPositions=(Map<GridPosition, Hole>)getArguments()[0];
+    	Set<GridPosition> obstacles =(Set<GridPosition>)getArguments()[1];
+    	Map<GridPosition,  LinkedList<TileStack>> tileStackPositions= (Map<GridPosition,  LinkedList<TileStack>>)getArguments()[2];
+    	int widthMap = ((Integer) getArguments()[3]).intValue();
+    	int heightMap = ((Integer) getArguments()[4]).intValue();
+    	env = new MyEnvironment();
+    	Set<GridPosition> all = new HashSet<>();
+    	for(int i = 0; i <= widthMap + 1; i++)
+			for(int j = 0; j <= heightMap + 1; j++)
+				all.add(new GridPosition(i, j));
+    	env.initialize(all, holesPositions, obstacles, tileStackPositions);
+
+    	env.printToString();
+    	//System.out.println(tileStackPositions);
        // parentAID = (AID) getArguments()[0];
         //agentValue = ((Integer) getArguments()[1]).intValue();
 

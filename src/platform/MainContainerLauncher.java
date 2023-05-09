@@ -13,6 +13,7 @@ import jade.wrapper.StaleProxyException;
 import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,8 +41,10 @@ public class MainContainerLauncher {
 	Map<Integer, String>	agentColors	= new HashMap<>();
 	Map<Integer, GridPosition> agentPositions = new HashMap<>();
 	Set<GridPosition> obstacles = new HashSet<>();
-	Map<GridPosition, TileStack> tileStackPositions= new HashMap<>();
+	Map<GridPosition,  LinkedList<TileStack>> tileStackPositions= new HashMap<>();
 	Map<GridPosition, Hole> holesPositions= new HashMap<>();
+	int widthMap;
+	int heightMap;
 	
 	/**
 	 * Configures and launches the main container.
@@ -99,8 +102,8 @@ public class MainContainerLauncher {
 			int  noAgents = Integer.parseInt(values[0]);
 			int operationTime = Integer.parseInt(values[1]);
 			int totalSimulationTime = Integer.parseInt(values[2]);
-			int widthMap = Integer.parseInt(values[3]);
-			int heightMap = Integer.parseInt(values[4]);
+			widthMap = Integer.parseInt(values[3]);
+			heightMap = Integer.parseInt(values[4]);
 			int id = 1;
 			
 			//read agents(identified through colors)
@@ -130,7 +133,13 @@ public class MainContainerLauncher {
 			while(values[i].equals("HOLES")==false) {
 				TileStack tileStack = new TileStack(Integer.parseInt(values[i]), values[i+1]);
 				GridPosition tileStackPos = new GridPosition(Integer.parseInt(values[i+2]), Integer.parseInt(values[i+3]));
-				tileStackPositions.put(tileStackPos, tileStack);
+				if(tileStackPositions.containsKey(tileStackPos))
+					tileStackPositions.get(tileStackPos).add(tileStack);
+				else {
+					LinkedList<TileStack> list = new LinkedList<>();
+					list.add(tileStack);
+					tileStackPositions.put(tileStackPos, list);
+				}
 				i=i+4;
 			}
 			i++; //skip HOLES keyword
@@ -161,7 +170,7 @@ public class MainContainerLauncher {
 			}
 			//holesPositions, obstacles, tileStackPositions
 			AgentController agentEnvCtrl = mainContainer.createNewAgent("Environment",
-					MyEnvironmentAgent.class.getName(), new Object[] {  });
+					MyEnvironmentAgent.class.getName(), new Object[] { holesPositions, obstacles, tileStackPositions, widthMap, heightMap });
 			agentEnvCtrl.start();
 			
 		} catch(StaleProxyException e) {

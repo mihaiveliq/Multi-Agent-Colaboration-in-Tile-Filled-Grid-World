@@ -165,13 +165,13 @@ public abstract class AbstractGridEnvironment implements Environment
 	/**
 	 * List of all the J-tiles in the environment. It must be dynamically updated when J-tiles are cleaned.
 	 */
-	protected HashMap<Hole, GridPosition> Holes;
+	protected Map<GridPosition, Hole> Holes;
 	/**
 	 * List of all the X-tiles in the environment.
 	 */
 	protected Set<GridPosition> Obstacles;
 
-	protected HashMap<GridPosition, LinkedList<TileStack>> tileStacks;
+	protected Map<GridPosition, LinkedList<TileStack>> tileStacks;
 	/**
 	 * List of all the agents in the environment.
 	 */
@@ -237,12 +237,13 @@ public abstract class AbstractGridEnvironment implements Environment
 	 * @param environmentObstacles
 	 *            - the set of positions (included in <code>allPositions</code>) that contain objects.
 	 */
-	protected void initialize(Set<GridPosition> allPositions, HashMap<Hole, GridPosition> environmentHoles,
-			Set<GridPosition> environmentObstacles)
+	public void initialize(Set<GridPosition> allPositions, Map<GridPosition, Hole> environmentHoles,
+			Set<GridPosition> environmentObstacles, Map<GridPosition, LinkedList<TileStack>> tileStacks )
 	{
-		positions = allPositions;
-		Holes = environmentHoles;
-		Obstacles = environmentObstacles;
+		this.positions = allPositions;
+		this.Holes = environmentHoles;
+		this.Obstacles = environmentObstacles;
+		this.tileStacks = tileStacks;
 		
 		GridPosition pos = allPositions.iterator().next();
 		x0 = x1 = pos.positionX;
@@ -344,102 +345,157 @@ public abstract class AbstractGridEnvironment implements Environment
 	{
 		// border top
 		String res = "";
+		System.out.print("  |");
 		res += "  |";
-//		for(int i = x0; i <= x1; i++)
-//		{
-//			for(int k = 0; k < cellW - (i >= 10 ? 2 : 1); k++)
-//				res += " ";
-//			res += i + "|";
-//		}
-//		res += "\n";
-//		res += "--+";
-//		for(int i = x0; i <= x1; i++)
-//		{
-//			for(int k = 0; k < cellW; k++)
-//				res += "-";
-//			res += "+";
-//		}
-//		res += "\n";
-//		// for each line
-//		for(int j = y1; j >= y0; j--)
-//		{
-//			// first cell row
-//			res += (j < 10 ? " " : "") + j + "|";
-//			for(int i = x0; i <= x1; i++)
-//			{
-//				GridPosition pos = new GridPosition(i, j);
-//				String agentString = "";
-//				for(GridAgentData agent : agents)
-//					if(agent.getPosition().equals(pos))
-//						agentString += agent.getOrientation().toString() + agent.getAgent().toString();
-//				int k = 0;
-//				if(Obstacles.contains(pos))
-//					for(; k < cellW; k++)
-//						res += "X";
-//				if((cellH < 2) && Holes.contains(pos))
-//				{
-//					res += "~";
-//					k++;
-//				}
-//				if(agentString.length() > 0)
-//				{
-//					if(cellW == 1)
-//					{
-//						if(agentString.length() > 1)
-//							res += ".";
-//						else
-//							res += agentString;
-//						k++;
-//					}
-//					else
-//					{
-//						res += agentString.substring(0, Math.min(agentString.length(), cellW - k));
-//						k += Math.min(agentString.length(), cellW - k);
-//					}
-//				}
-//				for(; k < cellW; k++)
-//					res += " ";
-//
-//				res += "|";
-//			}
-//			res += "\n";
-//			// second cellrow
-//			res += "  |";
-//			for(int i = x0; i <= x1; i++)
-//			{
-//				GridPosition pos = new GridPosition(i, j);
-//				for(int k = 0; k < cellW; k++)
-//					if(Obstacles.contains(pos))
-//						res += "X";
-//					else if((k == 0) && Holes.contains(pos))
-//						res += "~";
-//					else
-//						res += " ";
-//				res += "|";
-//			}
-//			res += "\n";
-//			// other cell rows
-//			for(int ky = 0; ky < cellH - 2; ky++)
-//			{
-//				res += "|";
-//				for(int i = x0; i <= x1; i++)
-//				{
-//					for(int k = 0; k < cellW; k++)
-//						res += Obstacles.contains(new GridPosition(i, j)) ? "X" : " ";
-//					res += "|";
-//				}
-//				res += "\n";
-//			}
-//			res += "--+";
-//			for(int i = x0; i <= x1; i++)
-//			{
-//				for(int k = 0; k < cellW; k++)
-//					res += "-";
-//				res += "+";
-//			}
-//			res += "\n";
-//
-//		}
+		for(int i = x0; i <= x1; i++)
+		{
+			for(int k = 0; k < cellW - (i >= 10 ? 2 : 1); k++) {
+				System.out.print(" ");
+				res += " ";
+				
+			}
+			System.out.print(i + "|");
+			res += i + "|";
+		}
+		System.out.print("\n");
+		res += "\n";
+		System.out.print("--+");
+		res += "--+";
+		for(int i = x0; i <= x1; i++)
+		{
+			for(int k = 0; k < cellW; k++) {
+				System.out.print("-");
+				res += "-";
+			}
+			System.out.print("+");
+			res += "+";
+		}
+		System.out.print("\n");
+		res += "\n";
+		// for each line
+		for(int j = y1; j >= y0; j--)
+		{
+			// first cell row
+			System.out.print((j < 10 ? " " : "") + j + "|");
+			res += (j < 10 ? " " : "") + j + "|";
+			for(int i = x0; i <= x1; i++)
+			{
+				GridPosition pos = new GridPosition(i, j);
+				String agentString = "";
+				for(GridAgentData agent : agents)
+					if(agent.getPosition().equals(pos))
+						agentString += agent.getOrientation().toString() + agent.getAgent().toString();
+				int k = 0;
+				if(Obstacles.contains(pos))
+					for(; k < cellW; k++) {
+						System.out.print("X");
+						res += "X";
+					}
+				if((cellH < 2) && Holes.containsKey(pos))
+				{
+					if(Holes.get(pos).getColor().equals("blue")) {
+						System.out.print(ConsoleColors.BLUE + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+						res += Integer.toString(Holes.get(pos).getDepth());
+					}
+					else if(Holes.get(pos).getColor().equals("green")) {
+						System.out.print(ConsoleColors.GREEN + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+						res += Integer.toString(Holes.get(pos).getDepth());
+					}
+					k++;
+				}
+				if(agentString.length() > 0)
+				{
+					if(cellW == 1)
+					{
+						if(agentString.length() > 1) {
+							System.out.print(".");
+							res += ".";
+						}
+						else {
+							System.out.print(agentString);
+							res += agentString;
+						}
+						k++;
+					}
+					else
+					{
+						
+						System.out.print(agentString.substring(0, Math.min(agentString.length(), cellW - k)));
+						res += agentString.substring(0, Math.min(agentString.length(), cellW - k));
+						k += Math.min(agentString.length(), cellW - k);
+					}
+				}
+				for(; k < cellW; k++) {
+					System.out.print(" ");
+					res += " ";
+				}
+				System.out.print("|");
+				res += "|";
+			}
+			System.out.print("\n");
+			res += "\n";
+			// second cellrow
+			System.out.print("  |");
+			res += "  |";
+			for(int i = x0; i <= x1; i++)
+			{
+				GridPosition pos = new GridPosition(i, j);
+				for(int k = 0; k < cellW; k++)
+					if(Obstacles.contains(pos)) {
+						System.out.print("X");
+						res += "X";
+					}
+					else if((k == 0) && Holes.containsKey(pos)) {
+						if(Holes.get(pos).getColor().equals("blue")) {
+							System.out.print(ConsoleColors.BLUE + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+							res += Integer.toString(Holes.get(pos).getDepth());
+						}
+						else if(Holes.get(pos).getColor().equals("green")) {
+							System.out.print(ConsoleColors.GREEN + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+							res += Integer.toString(Holes.get(pos).getDepth());
+						}
+					}
+					else {
+						System.out.print(" ");
+						res += " ";
+					}
+				System.out.print("|");
+				res += "|";
+			}
+			System.out.print("\n");
+			res += "\n";
+			// other cell rows
+			for(int ky = 0; ky < cellH - 2; ky++)
+			{
+				System.out.print("|");
+				res += "|";
+				for(int i = x0; i <= x1; i++)
+				{
+					for(int k = 0; k < cellW; k++) {
+						System.out.print(Obstacles.contains(new GridPosition(i, j)) ? "X" : " ");
+						res += Obstacles.contains(new GridPosition(i, j)) ? "X" : " ";
+					}
+					System.out.print("|");
+					res += "|";
+				}
+				System.out.print("\n");
+				res += "\n";
+			}
+			System.out.print("--+");
+			res += "--+";
+			for(int i = x0; i <= x1; i++)
+			{
+				for(int k = 0; k < cellW; k++) {
+					System.out.print("-");
+					res += "-";
+				}
+				System.out.print("+");
+				res += "+";
+			}
+			System.out.print("\n");
+			res += "\n";
+
+		}
 		return res;
 	}
 	
