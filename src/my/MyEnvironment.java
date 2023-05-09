@@ -133,7 +133,7 @@ public class MyEnvironment extends AbstractGridEnvironment {
 		GridPosition currGridPosition = myAgent.getPosition();
 		GridOrientation currGridOrientation = myAgent.getOrientation();
 
-		boolean isOverJtile = getHoles().contains(currGridPosition);
+//		boolean isOverJtile = getHoles().contains(currGridPosition);
 
 		Set<GridRelativeOrientation> obstacles = new HashSet<>();
 
@@ -143,16 +143,16 @@ public class MyEnvironment extends AbstractGridEnvironment {
 			}
 		}
 
-		MyAgentPerceptions myAgentPerceptions = new MyAgentPerceptions(obstacles, isOverJtile, currGridOrientation);
-		Action action = myAgent.getAgent().response(myAgentPerceptions);
+//		MyAgentPerceptions myAgentPerceptions = new MyAgentPerceptions(obstacles, isOverJtile, currGridOrientation);
+//		Action action = myAgent.getAgent().response(myAgentPerceptions);
 
-		switch (((MyAction) action)) {
-			case FORWARD -> myAgent.setPosition(currGridPosition.getNeighborPosition(currGridOrientation));
-			case TURN_LEFT ->
-					myAgent.setOrientation(currGridOrientation.computeRelativeOrientation(GridRelativeOrientation.LEFT));
-			case TURN_RIGHT ->
-					myAgent.setOrientation(currGridOrientation.computeRelativeOrientation(GridRelativeOrientation.RIGHT));
-			case PICK -> cleanTile(currGridPosition);
-		}
+//		switch (((MyAction) action)) {
+//			case FORWARD -> myAgent.setPosition(currGridPosition.getNeighborPosition(currGridOrientation));
+//			case TURN_LEFT ->
+//					myAgent.setOrientation(currGridOrientation.computeRelativeOrientation(GridRelativeOrientation.LEFT));
+//			case TURN_RIGHT ->
+//					myAgent.setOrientation(currGridOrientation.computeRelativeOrientation(GridRelativeOrientation.RIGHT));
+//			case PICK -> cleanTile(currGridPosition);
+//		}
 	}
 }

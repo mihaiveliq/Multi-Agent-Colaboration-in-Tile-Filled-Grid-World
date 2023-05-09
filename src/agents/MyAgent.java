@@ -3,7 +3,7 @@ package agents;
 import java.util.LinkedList;
 import java.util.List;
 
-import gridworld.AbstractGridEnvironment;
+import gridworld.*;
 import gridworld.AbstractGridEnvironment.GridAgentData;
 import jade.core.AID;
 import jade.core.Agent;
@@ -12,7 +12,6 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 //import platform.Log;
 import my.MyAgentData;
-import gridworld.GridPosition;
 
 /**
  * The Agent.
@@ -92,7 +91,7 @@ public class MyAgent extends Agent {
     	MyAgentData ag =new MyAgentData();
     	String agentColor = (String)getArguments()[0];
     	GridPosition agentPosition = (GridPosition)getArguments()[1];
-		this.gridAgentData = new GridAgentData(ag, agentColor, agentPosition);
+		this.gridAgentData = new GridAgentData(ag, agentColor, agentPosition, GridOrientation.NORTH);
 
 //        Log.log(this, "Hello. Parent is", parentAID);
 

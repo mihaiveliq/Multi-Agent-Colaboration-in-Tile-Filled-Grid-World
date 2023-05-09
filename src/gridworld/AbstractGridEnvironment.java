@@ -4,7 +4,7 @@ import java.util.*;
 
 import base.Agent;
 import base.Environment;
-import classes.TileStack;
+import classes.*;
 
 /**
  * Abstract implementation of an environment.
@@ -48,11 +48,11 @@ public abstract class AbstractGridEnvironment implements Environment
 		 * @param currentOrientation
 		 *            - the orientation.
 		 */
-		public GridAgentData(Agent linkedAgent, String color, GridPosition currentPosition)
+		public GridAgentData(Agent linkedAgent, String color, GridPosition currentPosition, GridOrientation currentOrientation)
 		{
 			super(linkedAgent);
 			position = currentPosition;
-			//orientation = currentOrientation;
+			orientation = currentOrientation;
 			this.color = color;
 		}
 		
@@ -165,7 +165,7 @@ public abstract class AbstractGridEnvironment implements Environment
 	/**
 	 * List of all the J-tiles in the environment. It must be dynamically updated when J-tiles are cleaned.
 	 */
-	protected Set<GridPosition> Holes;
+	protected HashMap<Hole, GridPosition> Holes;
 	/**
 	 * List of all the X-tiles in the environment.
 	 */
@@ -232,17 +232,17 @@ public abstract class AbstractGridEnvironment implements Environment
 	 *
 	 * @param allPositions
 	 *            - the set of all existing positions in the environment.
-	 * @param environmentJtiles
+	 * @param environmentHoles
 	 *            - the set of positions (included in <code>allPositions</code>) that contain junk.
-	 * @param environmentXtiles
+	 * @param environmentObstacles
 	 *            - the set of positions (included in <code>allPositions</code>) that contain objects.
 	 */
-	protected void initialize(Set<GridPosition> allPositions, Set<GridPosition> environmentJtiles,
-			Set<GridPosition> environmentXtiles)
+	protected void initialize(Set<GridPosition> allPositions, HashMap<Hole, GridPosition> environmentHoles,
+			Set<GridPosition> environmentObstacles)
 	{
 		positions = allPositions;
-		Holes = environmentJtiles;
-		Obstacles = environmentXtiles;
+		Holes = environmentHoles;
+		Obstacles = environmentObstacles;
 		
 		GridPosition pos = allPositions.iterator().next();
 		x0 = x1 = pos.positionX;
@@ -268,75 +268,75 @@ public abstract class AbstractGridEnvironment implements Environment
 	 *            - width
 	 * @param h
 	 *            - height
-	 * @param nJtiles
+	 * @param nHoles
 	 *            - number of generated J-tiles.
-	 * @param nXtiles
+	 * @param nObstacles
 	 *            - number of generated X-tiles.
 	 * @param rand
 	 *            - random number generator to use.
 	 */
-	protected void initialize(int w, int h, int nJtiles, int nXtiles, Random rand)
+	protected void initialize(int w, int h, int nHoles, int nObstacles, Random rand)
 	{
-		Set<GridPosition> all = new HashSet<>();
-		for(int i = 0; i <= w + 1; i++)
-			for(int j = 0; j <= h + 1; j++)
-				all.add(new GridPosition(i, j));
-		Set<GridPosition> xs = new HashSet<>();
-		for(int i = 0; i <= w + 1; i++)
-		{
-			xs.add(new GridPosition(i, 0));
-			xs.add(new GridPosition(i, h + 1));
-		}
-		for(int j = 0; j <= h + 1; j++)
-		{
-			xs.add(new GridPosition(0, j));
-			xs.add(new GridPosition(w + 1, j));
-		}
-		
-		int attempts = nXtiles * nXtiles;
-		int generated = 0;
-		while(attempts > 0 && generated < nXtiles)
-		{
-			int x = rand.nextInt(w) + 1;
-			int y = rand.nextInt(h) + 1;
-			GridPosition pos = new GridPosition(x, y);
-			
-			boolean ok = true;
-			for(GridPosition xtile : xs)
-				if(pos.getDistanceTo(xtile) <= 2)
-					ok = false;
-			if(ok)
-			{
-				generated++;
-				xs.add(pos);
-			}
-			
-			attempts--;
-		}
-		if(generated < nXtiles)
-			System.out.println("Failed to generate all required X-tiles");
-		
-		Set<GridPosition> js = new HashSet<>();
-		attempts = nJtiles * nJtiles;
-		generated = 0;
-		while((attempts > 0) && (generated < nJtiles))
-		{
-			int x = rand.nextInt(w) + 1;
-			int y = rand.nextInt(h) + 1;
-			GridPosition pos = new GridPosition(x, y);
-			
-			if(!js.contains(pos) && !xs.contains(pos))
-			{
-				js.add(pos);
-				generated++;
-			}
-			
-			attempts--;
-		}
-		if(generated < nJtiles)
-			System.out.println("Failed to generate all required J-tiles");
-		
-		initialize(all, js, xs);
+//		Set<GridPosition> all = new HashSet<>();
+//		for(int i = 0; i <= w + 1; i++)
+//			for(int j = 0; j <= h + 1; j++)
+//				all.add(new GridPosition(i, j));
+//		Set<GridPosition> xs = new HashSet<>();
+//		for(int i = 0; i <= w + 1; i++)
+//		{
+//			xs.add(new GridPosition(i, 0));
+//			xs.add(new GridPosition(i, h + 1));
+//		}
+//		for(int j = 0; j <= h + 1; j++)
+//		{
+//			xs.add(new GridPosition(0, j));
+//			xs.add(new GridPosition(w + 1, j));
+//		}
+//
+//		int attempts = nObstacles * nObstacles;
+//		int generated = 0;
+//		while(attempts > 0 && generated < nObstacles)
+//		{
+//			int x = rand.nextInt(w) + 1;
+//			int y = rand.nextInt(h) + 1;
+//			GridPosition pos = new GridPosition(x, y);
+//
+//			boolean ok = true;
+//			for(GridPosition xtile : xs)
+//				if(pos.getDistanceTo(xtile) <= 2)
+//					ok = false;
+//			if(ok)
+//			{
+//				generated++;
+//				xs.add(pos);
+//			}
+//
+//			attempts--;
+//		}
+//		if(generated < nObstacles)
+//			System.out.println("Failed to generate all required X-tiles");
+//
+//		HashMap<Hole, GridPosition> js = new HashMap<>();
+//		attempts = nHoles * nHoles;
+//		generated = 0;
+//		while((attempts > 0) && (generated < nHoles))
+//		{
+//			int x = rand.nextInt(w) + 1;
+//			int y = rand.nextInt(h) + 1;
+//			GridPosition pos = new GridPosition(x, y);
+//
+//			if(!js.contains(pos) && !xs.contains(pos))
+//			{
+//				js.add(pos);
+//				generated++;
+//			}
+//
+//			attempts--;
+//		}
+//		if(generated < nHoles)
+//			System.out.println("Failed to generate all required J-tiles");
+//
+//		initialize(all, js, xs);
 	}
 	
 	@Override
@@ -345,101 +345,101 @@ public abstract class AbstractGridEnvironment implements Environment
 		// border top
 		String res = "";
 		res += "  |";
-		for(int i = x0; i <= x1; i++)
-		{
-			for(int k = 0; k < cellW - (i >= 10 ? 2 : 1); k++)
-				res += " ";
-			res += i + "|";
-		}
-		res += "\n";
-		res += "--+";
-		for(int i = x0; i <= x1; i++)
-		{
-			for(int k = 0; k < cellW; k++)
-				res += "-";
-			res += "+";
-		}
-		res += "\n";
-		// for each line
-		for(int j = y1; j >= y0; j--)
-		{
-			// first cell row
-			res += (j < 10 ? " " : "") + j + "|";
-			for(int i = x0; i <= x1; i++)
-			{
-				GridPosition pos = new GridPosition(i, j);
-				String agentString = "";
-				for(GridAgentData agent : agents)
-					if(agent.getPosition().equals(pos))
-						agentString += agent.getOrientation().toString() + agent.getAgent().toString();
-				int k = 0;
-				if(Obstacles.contains(pos))
-					for(; k < cellW; k++)
-						res += "X";
-				if((cellH < 2) && Holes.contains(pos))
-				{
-					res += "~";
-					k++;
-				}
-				if(agentString.length() > 0)
-				{
-					if(cellW == 1)
-					{
-						if(agentString.length() > 1)
-							res += ".";
-						else
-							res += agentString;
-						k++;
-					}
-					else
-					{
-						res += agentString.substring(0, Math.min(agentString.length(), cellW - k));
-						k += Math.min(agentString.length(), cellW - k);
-					}
-				}
-				for(; k < cellW; k++)
-					res += " ";
-				
-				res += "|";
-			}
-			res += "\n";
-			// second cellrow
-			res += "  |";
-			for(int i = x0; i <= x1; i++)
-			{
-				GridPosition pos = new GridPosition(i, j);
-				for(int k = 0; k < cellW; k++)
-					if(Obstacles.contains(pos))
-						res += "X";
-					else if((k == 0) && Holes.contains(pos))
-						res += "~";
-					else
-						res += " ";
-				res += "|";
-			}
-			res += "\n";
-			// other cell rows
-			for(int ky = 0; ky < cellH - 2; ky++)
-			{
-				res += "|";
-				for(int i = x0; i <= x1; i++)
-				{
-					for(int k = 0; k < cellW; k++)
-						res += Obstacles.contains(new GridPosition(i, j)) ? "X" : " ";
-					res += "|";
-				}
-				res += "\n";
-			}
-			res += "--+";
-			for(int i = x0; i <= x1; i++)
-			{
-				for(int k = 0; k < cellW; k++)
-					res += "-";
-				res += "+";
-			}
-			res += "\n";
-			
-		}
+//		for(int i = x0; i <= x1; i++)
+//		{
+//			for(int k = 0; k < cellW - (i >= 10 ? 2 : 1); k++)
+//				res += " ";
+//			res += i + "|";
+//		}
+//		res += "\n";
+//		res += "--+";
+//		for(int i = x0; i <= x1; i++)
+//		{
+//			for(int k = 0; k < cellW; k++)
+//				res += "-";
+//			res += "+";
+//		}
+//		res += "\n";
+//		// for each line
+//		for(int j = y1; j >= y0; j--)
+//		{
+//			// first cell row
+//			res += (j < 10 ? " " : "") + j + "|";
+//			for(int i = x0; i <= x1; i++)
+//			{
+//				GridPosition pos = new GridPosition(i, j);
+//				String agentString = "";
+//				for(GridAgentData agent : agents)
+//					if(agent.getPosition().equals(pos))
+//						agentString += agent.getOrientation().toString() + agent.getAgent().toString();
+//				int k = 0;
+//				if(Obstacles.contains(pos))
+//					for(; k < cellW; k++)
+//						res += "X";
+//				if((cellH < 2) && Holes.contains(pos))
+//				{
+//					res += "~";
+//					k++;
+//				}
+//				if(agentString.length() > 0)
+//				{
+//					if(cellW == 1)
+//					{
+//						if(agentString.length() > 1)
+//							res += ".";
+//						else
+//							res += agentString;
+//						k++;
+//					}
+//					else
+//					{
+//						res += agentString.substring(0, Math.min(agentString.length(), cellW - k));
+//						k += Math.min(agentString.length(), cellW - k);
+//					}
+//				}
+//				for(; k < cellW; k++)
+//					res += " ";
+//
+//				res += "|";
+//			}
+//			res += "\n";
+//			// second cellrow
+//			res += "  |";
+//			for(int i = x0; i <= x1; i++)
+//			{
+//				GridPosition pos = new GridPosition(i, j);
+//				for(int k = 0; k < cellW; k++)
+//					if(Obstacles.contains(pos))
+//						res += "X";
+//					else if((k == 0) && Holes.contains(pos))
+//						res += "~";
+//					else
+//						res += " ";
+//				res += "|";
+//			}
+//			res += "\n";
+//			// other cell rows
+//			for(int ky = 0; ky < cellH - 2; ky++)
+//			{
+//				res += "|";
+//				for(int i = x0; i <= x1; i++)
+//				{
+//					for(int k = 0; k < cellW; k++)
+//						res += Obstacles.contains(new GridPosition(i, j)) ? "X" : " ";
+//					res += "|";
+//				}
+//				res += "\n";
+//			}
+//			res += "--+";
+//			for(int i = x0; i <= x1; i++)
+//			{
+//				for(int k = 0; k < cellW; k++)
+//					res += "-";
+//				res += "+";
+//			}
+//			res += "\n";
+//
+//		}
 		return res;
 	}
 	
@@ -486,10 +486,10 @@ public abstract class AbstractGridEnvironment implements Environment
 	/**
 	 * @return a {@link Set} of {@link GridPosition} instances indicating all positions of J-tiles in the environment.
 	 */
-	protected Set<GridPosition> getHoles()
-	{
-		return convertPositions(Holes);
-	}
+//	protected Set<GridPosition> getHoles()
+//	{
+//		return convertPositions(Holes);
+//	}
 	
 	/**
 	 * @return a {@link Set} of {@link GridPosition} instances indicating all positions of X-tiles in the environment.
@@ -522,8 +522,8 @@ public abstract class AbstractGridEnvironment implements Environment
 	 */
 	protected void cleanTile(GridPosition position)
 	{
-		if(!Holes.contains(position))
-			throw new IllegalArgumentException("GridPosition was not dirty");
-		Holes.remove(position);
+//		if(!Holes.contains(position))
+//			throw new IllegalArgumentException("GridPosition was not dirty");
+//		Holes.remove(position);
 	}
 }
