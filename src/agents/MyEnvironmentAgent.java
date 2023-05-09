@@ -98,17 +98,15 @@ public class MyEnvironmentAgent extends Agent {
         int T = ((Integer) getArguments()[6]).intValue();
     	env = new MyEnvironment();
     	Set<GridPosition> all = new HashSet<>();
-    	for(int i = 0; i <= widthMap + 1; i++)
-			for(int j = 0; j <= heightMap + 1; j++)
+    	for(int i = 0; i < widthMap; i++)
+			for(int j = 0; j < heightMap ; j++)
 				all.add(new GridPosition(i, j));
     	env.initialize(all, holesPositions, obstacles, tileStackPositions);
 
     	env.printToString();
     	//System.out.println(tileStackPositions);
-       // parentAID = (AID) getArguments()[0];
-        //agentValue = ((Integer) getArguments()[1]).intValue();
 
-//        Log.log(this, "Hello. Parent is", parentAID);
+
         ParallelBehaviour pb = new ParallelBehaviour(this, ParallelBehaviour.WHEN_ALL);
 
         pb.addSubBehaviour(new WakerBehaviour(this, T) {

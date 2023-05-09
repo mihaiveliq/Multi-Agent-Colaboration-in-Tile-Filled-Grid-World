@@ -1,5 +1,7 @@
 package gridworld;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import base.Agent;
@@ -219,7 +221,7 @@ public abstract class AbstractGridEnvironment implements Environment
 	/**
 	 * Width of displayed cells.
 	 */
-	protected int	cellW	= 2;
+	protected int	cellW	= 8;
 	/**
 	 * Height of displayed cells.
 	 */
@@ -345,6 +347,9 @@ public abstract class AbstractGridEnvironment implements Environment
 	{
 		// border top
 		String res = "";
+		Timestamp ts = new Timestamp(System.currentTimeMillis());
+		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		System.out.println(sdf1.format(ts));
 		System.out.print("  |");
 		res += "  |";
 		for(int i = x0; i <= x1; i++)
@@ -383,25 +388,64 @@ public abstract class AbstractGridEnvironment implements Environment
 				GridPosition pos = new GridPosition(i, j);
 				String agentString = "";
 				for(GridAgentData agent : agents)
-					if(agent.getPosition().equals(pos))
-						agentString += agent.getOrientation().toString() + agent.getAgent().toString();
+					if(agent.getPosition().equals(pos)) {
+						agentString += "@";
+						String agentColor = agent.getColor();
+					}
 				int k = 0;
 				if(Obstacles.contains(pos))
 					for(; k < cellW; k++) {
 						System.out.print("X");
 						res += "X";
 					}
-				if((cellH < 2) && Holes.containsKey(pos))
+				if(tileStacks.containsKey(pos)==true)
 				{
-					if(Holes.get(pos).getColor().equals("blue")) {
-						System.out.print(ConsoleColors.BLUE + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
-						res += Integer.toString(Holes.get(pos).getDepth());
+					for(int l=0; l<tileStacks.get(pos).size();l++) {
+						switch(tileStacks.get(pos).get(l).getColor()) {
+						case "blue":
+							System.out.print(ConsoleColors.BLUE + Integer.toString(tileStacks.get(pos).get(l).getNoTiles()) + "t" + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "green":
+							System.out.print(ConsoleColors.GREEN + Integer.toString(tileStacks.get(pos).get(l).getNoTiles()) + "t" + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "red":
+							System.out.print(ConsoleColors.RED + Integer.toString(tileStacks.get(pos).get(l).getNoTiles()) + "t" + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "yellow":
+							System.out.print(ConsoleColors.YELLOW_BRIGHT + Integer.toString(tileStacks.get(pos).get(l).getNoTiles()) + "t" + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "pink":
+							System.out.print(ConsoleColors.PURPLE_BRIGHT + Integer.toString(tileStacks.get(pos).get(l).getNoTiles()) + "t" + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "orange":
+							System.out.print(ConsoleColors.YELLOW + Integer.toString(tileStacks.get(pos).get(l).getNoTiles()) + "t" + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "violet":
+							System.out.print(ConsoleColors.PURPLE + Integer.toString(tileStacks.get(pos).get(l).getNoTiles()) + "t" + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "maroon":
+							System.out.print(ConsoleColors.BLACK_BRIGHT + Integer.toString(tileStacks.get(pos).get(l).getNoTiles()) + "t" + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						}
 					}
-					else if(Holes.get(pos).getColor().equals("green")) {
-						System.out.print(ConsoleColors.GREEN + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
-						res += Integer.toString(Holes.get(pos).getDepth());
-					}
-					k++;
+					
+//					if(Holes.get(pos).getColor().equals("blue")) {
+//						System.out.print(ConsoleColors.BLUE + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+//						res += "#" + Integer.toString(Holes.get(pos).getDepth());
+//					}
+//					else if(Holes.get(pos).getColor().equals("green")) {
+//						System.out.print(ConsoleColors.GREEN + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+//						res += "#" + Integer.toString(Holes.get(pos).getDepth());
+//					}
+					k+=2*tileStacks.get(pos).size();
 				}
 				if(agentString.length() > 0)
 				{
@@ -420,7 +464,7 @@ public abstract class AbstractGridEnvironment implements Environment
 					else
 					{
 						
-						System.out.print(agentString.substring(0, Math.min(agentString.length(), cellW - k)));
+						System.out.print(ConsoleColors.GREEN +agentString.substring(0, Math.min(agentString.length(), cellW - k)));
 						res += agentString.substring(0, Math.min(agentString.length(), cellW - k));
 						k += Math.min(agentString.length(), cellW - k);
 					}
@@ -446,14 +490,49 @@ public abstract class AbstractGridEnvironment implements Environment
 						res += "X";
 					}
 					else if((k == 0) && Holes.containsKey(pos)) {
-						if(Holes.get(pos).getColor().equals("blue")) {
-							System.out.print(ConsoleColors.BLUE + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
-							res += Integer.toString(Holes.get(pos).getDepth());
+						switch(Holes.get(pos).getColor()) {
+						case "blue":
+							System.out.print(ConsoleColors.BLUE + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+							res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "green":
+							System.out.print(ConsoleColors.GREEN + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+							res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "red":
+							System.out.print(ConsoleColors.RED + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+							res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "yellow":
+							System.out.print(ConsoleColors.YELLOW_BRIGHT + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+							res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "pink":
+							System.out.print(ConsoleColors.PURPLE_BRIGHT + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+							res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "orange":
+							System.out.print(ConsoleColors.YELLOW + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+							res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "violet":
+							System.out.print(ConsoleColors.PURPLE + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+							res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "maroon":
+							System.out.print(ConsoleColors.BLACK_BRIGHT + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+							res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
 						}
-						else if(Holes.get(pos).getColor().equals("green")) {
-							System.out.print(ConsoleColors.GREEN + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
-							res += Integer.toString(Holes.get(pos).getDepth());
-						}
+//						if(Holes.get(pos).getColor().equals("blue")) {
+//							System.out.print(ConsoleColors.BLUE +  "#" +  Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+//							res += "#"+Integer.toString(Holes.get(pos).getDepth());
+//						}
+//						else if(Holes.get(pos).getColor().equals("green")) {
+//							System.out.print(ConsoleColors.GREEN  + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
+//							res += "#" + Integer.toString(Holes.get(pos).getDepth());
+//						}
+						k++;
 					}
 					else {
 						System.out.print(" ");
@@ -496,6 +575,7 @@ public abstract class AbstractGridEnvironment implements Environment
 			res += "\n";
 
 		}
+		System.out.print("\n\n");
 		return res;
 	}
 	

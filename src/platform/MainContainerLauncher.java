@@ -95,7 +95,7 @@ public class MainContainerLauncher {
 	void readConfig() throws IOException {
 //		try (BufferedReader br = new BufferedReader(new FileReader(new File("C:\\Users\\diana\\git\\ProiectSMA\\tests\\system__default.txt")))) {
 //		InputStream in = FileLoader.class.getResourceAsStream("<relative path from this class to the file to be read>");
-		try (BufferedReader br = new BufferedReader(new FileReader(new File("tests/system__default.txt")))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(new File("tests/system__FV_sys8.txt")))) {
 
 			String line;
 			
@@ -112,7 +112,7 @@ public class MainContainerLauncher {
 			//read agents(identified through colors)
 			for(int i=5; i<5+noAgents; i++) {
 				
-				agentColors.put(id, values[i]);
+				agentColors.put(id, values[i].toLowerCase());
 				id++;
 			}
 			id = 1;
