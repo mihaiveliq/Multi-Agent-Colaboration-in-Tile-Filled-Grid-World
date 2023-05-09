@@ -45,6 +45,9 @@ public class MainContainerLauncher {
 	Map<GridPosition, Hole> holesPositions= new HashMap<>();
 	int widthMap;
 	int heightMap;
+	int operationTime;
+	int totalSimulationTime;
+
 	
 	/**
 	 * Configures and launches the main container.
@@ -100,8 +103,8 @@ public class MainContainerLauncher {
 			//System.out.println(line);
 			String[] values = line.split("\\s+");
 			int  noAgents = Integer.parseInt(values[0]);
-			int operationTime = Integer.parseInt(values[1]);
-			int totalSimulationTime = Integer.parseInt(values[2]);
+			operationTime = Integer.parseInt(values[1]);
+			totalSimulationTime = Integer.parseInt(values[2]);
 			widthMap = Integer.parseInt(values[3]);
 			heightMap = Integer.parseInt(values[4]);
 			int id = 1;
@@ -160,6 +163,10 @@ public class MainContainerLauncher {
 	 */
 	void startAgents() {
 		try {
+			AgentController agentEnvCtrl = mainContainer.createNewAgent("Environment",
+					MyEnvironmentAgent.class.getName(), new Object[] { holesPositions, obstacles, tileStackPositions, widthMap, heightMap, operationTime, totalSimulationTime });
+			agentEnvCtrl.start();
+
 			for(String agColor : agentConfig.keySet()) {
 				GridPosition agentPosition = agentConfig.get(agColor);
 				
@@ -169,9 +176,6 @@ public class MainContainerLauncher {
 				agentCtrl.start();
 			}
 			//holesPositions, obstacles, tileStackPositions
-			AgentController agentEnvCtrl = mainContainer.createNewAgent("Environment",
-					MyEnvironmentAgent.class.getName(), new Object[] { holesPositions, obstacles, tileStackPositions, widthMap, heightMap });
-			agentEnvCtrl.start();
 			
 		} catch(StaleProxyException e) {
 			e.printStackTrace();

@@ -16,6 +16,7 @@ import jade.core.Agent;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.proto.AchieveREInitiator;
 import my.MyEnvironment;
 import classes.ConsoleColors;
 //import platform.Log;
@@ -93,6 +94,8 @@ public class MyEnvironmentAgent extends Agent {
     	Map<GridPosition,  LinkedList<TileStack>> tileStackPositions= (Map<GridPosition,  LinkedList<TileStack>>)getArguments()[2];
     	int widthMap = ((Integer) getArguments()[3]).intValue();
     	int heightMap = ((Integer) getArguments()[4]).intValue();
+        int t = ((Integer) getArguments()[5]).intValue();
+        int T = ((Integer) getArguments()[6]).intValue();
     	env = new MyEnvironment();
     	Set<GridPosition> all = new HashSet<>();
     	for(int i = 0; i <= widthMap + 1; i++)
@@ -106,59 +109,88 @@ public class MyEnvironmentAgent extends Agent {
         //agentValue = ((Integer) getArguments()[1]).intValue();
 
 //        Log.log(this, "Hello. Parent is", parentAID);
+        ParallelBehaviour pb = new ParallelBehaviour(this, ParallelBehaviour.WHEN_ALL);
+
+        pb.addSubBehaviour(new WakerBehaviour(this, T) {
+            protected void onWake() {
+                System.out.println("Waker behaviour has completed after 5 seconds.");
+                // de trimis tuturor mesaje de terminare
+                myAgent.doDelete();
+            }
+        });
+
+        pb.addSubBehaviour(new TickerBehaviour(this, t) {
+            protected void onTick() {
+                env.printToString();
+            }
+        });
+
+        // de customizat, eventual cu Publisher Subscriber
+        pb.addSubBehaviour(new AchieveREInitiator(this, null) {
+            protected void handleInform(ACLMessage inform) {
+                System.out.println("Received response message: " + inform.getContent());
+            }
+
+            protected void handleFailure(ACLMessage failure) {
+                System.out.println("Received failure message: " + failure.getContent());
+            }
+        });
+
+        addBehaviour(pb);
 
         // add the behavior that sends the registration message to the parent
-        if(parentAID != null) {
-//            Log.log(this, "Registration sender behavior for this agent starts in 1 second");
-            addBehaviour(new WakerBehaviour(this, 1000) {
-                @Override
-                protected void onWake() {
-                    // Create the registration message as a simple INFORM message
-                    ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-                    msg.setProtocol(REGISTRATION_PROTOCOL);
-                    msg.setConversationId("registration-" + myAgent.getName());
-                    msg.addReceiver(parentAID);
-
-                    myAgent.send(msg);
-                }
-
-                @Override
-                public int onEnd() {
-//                    Log.logIP(myAgent, REGISTRATION_PROTOCOL, parentAID, "message sent");
-                    return super.onEnd();
-                }
-            });
-        }
-        else
-//            Log.log(this, "Registration sender behavior need not start for agent", getAID().getName());
-
-            // add the RegistrationReceiveBehavior
-            addBehaviour(new TickerBehaviour(this, TICK_PERIOD) {
-                @Override
-                protected void onTick() {
-                    ACLMessage receivedMsg = myAgent.receive(registrationReceiptTemplate);
-                    // register the agent if message received
-                    if(receivedMsg != null) {
-                        AID childAID = receivedMsg.getSender();
-                        ((MyAgent) myAgent).addChildAgent(childAID);
-                    }
-                    // if number of ticks surpassed, take down the agent
-                    if(getTickCount() >= MAX_TICKS) {
-                        stop();
-
-                        // TODO: comment this out once you add the other behaviors as well
-                        //myAgent.doDelete();
-                    }
-                }
-            });
+//        if(parentAID != null) {
+////            Log.log(this, "Registration sender behavior for this agent starts in 1 second");
+//            addBehaviour(new WakerBehaviour(this, 1000) {
+//                @Override
+//                protected void onWake() {
+//                    // Create the registration message as a simple INFORM message
+//                    ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+//                    msg.setProtocol(REGISTRATION_PROTOCOL);
+//                    msg.setConversationId("registration-" + myAgent.getName());
+//                    msg.addReceiver(parentAID);
+//
+//                    myAgent.send(msg);
+//                }
+//
+//                @Override
+//                public int onEnd() {
+////                    Log.logIP(myAgent, REGISTRATION_PROTOCOL, parentAID, "message sent");
+//                    return super.onEnd();
+//                }
+//            });
+//        }
+//        else
+////            Log.log(this, "Registration sender behavior need not start for agent", getAID().getName());
+//
+//            // add the RegistrationReceiveBehavior
+//            addBehaviour(new TickerBehaviour(this, TICK_PERIOD) {
+//                @Override
+//                protected void onTick() {
+//                    ACLMessage receivedMsg = myAgent.receive(registrationReceiptTemplate);
+//                    // register the agent if message received
+//                    if(receivedMsg != null) {
+//                        AID childAID = receivedMsg.getSender();
+//                        ((MyAgent) myAgent).addChildAgent(childAID);
+//                    }
+//                    // if number of ticks surpassed, take down the agent
+//                    if(getTickCount() >= MAX_TICKS) {
+//                        stop();
+//
+//                        // TODO: comment this out once you add the other behaviors as well
+//                        //myAgent.doDelete();
+//                    }
+//                }
+//            });
     }
 
     @Override
     protected void takeDown() {
-        String children = "";
-        for(AID childAID : childAgents)
-            children += childAID.getLocalName() + "  ";
+//        String children = "";
+//        for(AID childAID : childAgents)
+//            children += childAID.getLocalName() + "  ";
 //        Log.log(this, "has the following children: ", children);
+        // de afisat punctajele
     }
 }
 
