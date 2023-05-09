@@ -4,12 +4,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import gridworld.AbstractGridEnvironment;
+import gridworld.AbstractGridEnvironment.GridAgentData;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 //import platform.Log;
+import my.MyAgentData;
+import gridworld.GridPosition;
 
 /**
  * The Agent.
@@ -86,8 +89,10 @@ public class MyAgent extends Agent {
     @SuppressWarnings("serial")
     @Override
     protected void setup() {
-        parentAID = (AID) getArguments()[0];
-        agentValue = ((Integer) getArguments()[1]).intValue();
+    	MyAgentData ag =new MyAgentData();
+    	String agentColor = (String)getArguments()[0];
+    	GridPosition agentPosition = (GridPosition)getArguments()[1];
+		this.gridAgentData = new GridAgentData(ag, agentColor, agentPosition);
 
 //        Log.log(this, "Hello. Parent is", parentAID);
 
@@ -131,7 +136,7 @@ public class MyAgent extends Agent {
                     stop();
 
                     // TODO: comment this out once you add the other behaviors as well
-                    myAgent.doDelete();
+                    //myAgent.doDelete();
                 }
             }
         });

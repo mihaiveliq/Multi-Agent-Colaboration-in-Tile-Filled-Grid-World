@@ -13,7 +13,7 @@ import java.util.*;
  * 
  * @author Andrei Olaru
  */
-public class MyAgent implements Agent
+public class MyAgentData implements Agent
 {
 	public Boolean holdingTile;
 	public Tile heldTile;

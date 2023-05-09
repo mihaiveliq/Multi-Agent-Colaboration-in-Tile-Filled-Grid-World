@@ -78,8 +78,9 @@ public class MyEnvironmentAgent extends Agent {
     @SuppressWarnings("serial")
     @Override
     protected void setup() {
-        parentAID = (AID) getArguments()[0];
-        agentValue = ((Integer) getArguments()[1]).intValue();
+    	//holesPositions, obstacles, tileStackPositions
+       // parentAID = (AID) getArguments()[0];
+        //agentValue = ((Integer) getArguments()[1]).intValue();
 
 //        Log.log(this, "Hello. Parent is", parentAID);
 
@@ -123,7 +124,7 @@ public class MyEnvironmentAgent extends Agent {
                         stop();
 
                         // TODO: comment this out once you add the other behaviors as well
-                        myAgent.doDelete();
+                        //myAgent.doDelete();
                     }
                 }
             });

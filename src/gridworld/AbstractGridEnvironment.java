@@ -48,11 +48,11 @@ public abstract class AbstractGridEnvironment implements Environment
 		 * @param currentOrientation
 		 *            - the orientation.
 		 */
-		public GridAgentData(Agent linkedAgent, String color, GridPosition currentPosition, GridOrientation currentOrientation)
+		public GridAgentData(Agent linkedAgent, String color, GridPosition currentPosition)
 		{
 			super(linkedAgent);
 			position = currentPosition;
-			orientation = currentOrientation;
+			//orientation = currentOrientation;
 			this.color = color;
 		}
 		

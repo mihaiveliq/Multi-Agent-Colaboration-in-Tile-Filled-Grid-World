@@ -7,6 +7,8 @@ import jade.core.Runtime;
 import jade.util.ExtendedProperties;
 import jade.util.leap.Properties;
 import jade.wrapper.AgentContainer;
+import jade.wrapper.AgentController;
+import jade.wrapper.StaleProxyException;
 
 import java.io.*;
 import java.util.HashMap;
@@ -17,7 +19,12 @@ import java.util.stream.Collectors;
 
 import classes.TileStack;
 import classes.Hole;
-
+import gridworld.AbstractGridEnvironment.GridAgentData;
+import gridworld.AbstractGridEnvironment;
+import my.MyAgentData;
+import agents.MyAgent;
+import agents.MyEnvironmentAgent;
+import base.Agent;
 /**
  * Launches a main container and associated agents.
  */
@@ -29,7 +36,8 @@ public class MainContainerLauncher {
 	/**
 	 * Agent ID (as a number) -> Key -> Numeric value
 	 */
-	Map<Integer, String>	agentConfig	= new HashMap<>();
+	Map<String, GridPosition>	agentConfig	= new HashMap<>();
+	Map<Integer, String>	agentColors	= new HashMap<>();
 	Map<Integer, GridPosition> agentPositions = new HashMap<>();
 	Set<GridPosition> obstacles = new HashSet<>();
 	Map<GridPosition, TileStack> tileStackPositions= new HashMap<>();
@@ -98,7 +106,7 @@ public class MainContainerLauncher {
 			//read agents(identified through colors)
 			for(int i=5; i<5+noAgents; i++) {
 				
-				agentConfig.put(id, values[i]);
+				agentColors.put(id, values[i]);
 				id++;
 			}
 			id = 1;
@@ -107,6 +115,9 @@ public class MainContainerLauncher {
 				GridPosition agentPos = new GridPosition(Integer.parseInt(values[i]), Integer.parseInt(values[i+1]));
 				agentPositions.put(id, agentPos);
 				id++;
+			}
+			for(int idx: agentColors.keySet()) {
+				agentConfig.put(agentColors.get(idx), agentPositions.get(idx));
 			}
 			int i = 5+noAgents+2*noAgents+1; //skip OBSTACLES keyword
 			//read Obstacles
@@ -139,24 +150,23 @@ public class MainContainerLauncher {
 	 * Starts the agents assigned to the main container.
 	 */
 	void startAgents() {
-//		try {
-//			for(Integer agId : agentConfig.keySet()) {
-//				int parentId = agentConfig.get(agId).get("parentId").intValue();
-//				int value = agentConfig.get(agId).get("value").intValue();
-//				
-//				AID parentAID = null;
-//				
-//				if(parentId != 0)
-//					parentAID = new AID(createAgentName(parentId), AID.ISLOCALNAME);
-//				
-//				AgentController agentCtrl = mainContainer.createNewAgent(createAgentName(agId.intValue()),
-//						MyAgent.class.getName(), new Object[] { parentAID, Integer.valueOf(value) });
-//				agentCtrl.start();
-//			}
-//			
-//		} catch(StaleProxyException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			for(String agColor : agentConfig.keySet()) {
+				GridPosition agentPosition = agentConfig.get(agColor);
+				
+				
+				AgentController agentCtrl = mainContainer.createNewAgent(agColor,
+						MyAgent.class.getName(), new Object[] { agColor, agentPosition });
+				agentCtrl.start();
+			}
+			//holesPositions, obstacles, tileStackPositions
+			AgentController agentEnvCtrl = mainContainer.createNewAgent("Environment",
+					MyEnvironmentAgent.class.getName(), new Object[] {  });
+			agentEnvCtrl.start();
+			
+		} catch(StaleProxyException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
