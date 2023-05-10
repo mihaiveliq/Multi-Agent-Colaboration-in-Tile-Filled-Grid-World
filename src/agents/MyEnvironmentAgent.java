@@ -1,5 +1,6 @@
 package agents;
 
+import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -10,7 +11,7 @@ import java.util.Set;
 import base.Environment;
 import classes.Hole;
 import classes.TileStack;
-import gridworld.GridPosition;
+import gridworld.*;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
@@ -96,13 +97,16 @@ public class MyEnvironmentAgent extends Agent {
     	int heightMap = ((Integer) getArguments()[4]).intValue();
         int t = ((Integer) getArguments()[5]).intValue();
         int T = ((Integer) getArguments()[6]).intValue();
+        Map<String, GridPosition> agentConfig = (Map<String, GridPosition>)getArguments()[7];
     	env = new MyEnvironment();
     	Set<GridPosition> all = new HashSet<>();
     	for(int i = 0; i < widthMap; i++)
 			for(int j = 0; j < heightMap ; j++)
 				all.add(new GridPosition(i, j));
     	env.initialize(all, holesPositions, obstacles, tileStackPositions);
-
+        for (Map.Entry<String,GridPosition> agent : agentConfig.entrySet()) {
+            // aici sunt culoarea si pozitia agentului
+        }
     	env.printToString();
     	//System.out.println(tileStackPositions);
 
@@ -120,6 +124,19 @@ public class MyEnvironmentAgent extends Agent {
         pb.addSubBehaviour(new TickerBehaviour(this, t) {
             protected void onTick() {
                 env.printToString();
+            }
+        });
+
+        pb.addSubBehaviour(new TickerBehaviour(this, t) {
+            protected void onTick() {
+                ACLMessage receivedMsg = myAgent.receive(registrationReceiptTemplate);
+                // register the agent if message received and is still
+                if(receivedMsg != null && getTickCount() >= MAX_TICKS) {
+                    AID childAID = receivedMsg.getSender();
+
+                    ((MyAgent) myAgent).addChildAgent(childAID);
+                    System.out.println("Agent " + childAID.toString() + " connected.");
+                }
             }
         });
 

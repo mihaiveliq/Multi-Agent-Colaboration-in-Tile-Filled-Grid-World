@@ -3,6 +3,7 @@ package agents;
 import java.util.LinkedList;
 import java.util.List;
 
+import base.Environment;
 import gridworld.*;
 import gridworld.AbstractGridEnvironment.GridAgentData;
 import jade.core.AID;

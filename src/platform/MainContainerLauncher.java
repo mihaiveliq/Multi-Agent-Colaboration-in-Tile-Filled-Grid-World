@@ -164,7 +164,7 @@ public class MainContainerLauncher {
 	void startAgents() {
 		try {
 			AgentController agentEnvCtrl = mainContainer.createNewAgent("Environment",
-					MyEnvironmentAgent.class.getName(), new Object[] { holesPositions, obstacles, tileStackPositions, widthMap, heightMap, operationTime, totalSimulationTime });
+					MyEnvironmentAgent.class.getName(), new Object[] { holesPositions, obstacles, tileStackPositions, widthMap, heightMap, operationTime, totalSimulationTime, agentConfig });
 			agentEnvCtrl.start();
 
 			for(String agColor : agentConfig.keySet()) {
