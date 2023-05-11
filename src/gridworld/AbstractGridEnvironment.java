@@ -221,7 +221,7 @@ public abstract class AbstractGridEnvironment implements Environment
 	/**
 	 * Width of displayed cells.
 	 */
-	protected int	cellW	= 8;
+	protected int	cellW	= 10;
 	/**
 	 * Height of displayed cells.
 	 */
@@ -347,6 +347,7 @@ public abstract class AbstractGridEnvironment implements Environment
 	{
 		// border top
 		String res = "";
+		String agentColor = "";
 		Timestamp ts = new Timestamp(System.currentTimeMillis());
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		System.out.println(sdf1.format(ts));
@@ -390,7 +391,7 @@ public abstract class AbstractGridEnvironment implements Environment
 				for(GridAgentData agent : agents)
 					if(agent.getPosition().equals(pos)) {
 						agentString += "@";
-						String agentColor = agent.getColor();
+						agentColor = agent.getColor();
 					}
 				int k = 0;
 				if(Obstacles.contains(pos))
@@ -436,7 +437,42 @@ public abstract class AbstractGridEnvironment implements Environment
 							break;
 						}
 					}
-					
+					if(agentString.equals("")==false)
+					switch(agentColor) {
+					case "blue":
+						System.out.print(ConsoleColors.BLUE + agentString + ConsoleColors.RESET);
+						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+						break;
+					case "green":
+						System.out.print(ConsoleColors.GREEN + agentString + ConsoleColors.RESET);
+						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+						break;
+					case "red":
+						System.out.print(ConsoleColors.RED + agentString + ConsoleColors.RESET);
+						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+						break;
+					case "yellow":
+						System.out.print(ConsoleColors.YELLOW_BRIGHT + agentString + ConsoleColors.RESET);
+						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+						break;
+					case "pink":
+						System.out.print(ConsoleColors.PURPLE_BRIGHT + agentString + ConsoleColors.RESET);
+						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+						break;
+					case "orange":
+						System.out.print(ConsoleColors.YELLOW +agentString + ConsoleColors.RESET);
+						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+						break;
+					case "violet":
+						System.out.print(ConsoleColors.PURPLE + agentString + ConsoleColors.RESET);
+						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+						break;
+					case "maroon":
+						System.out.print(ConsoleColors.BLACK_BRIGHT +  agentString + ConsoleColors.RESET);
+						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+						break;
+					}
+					agentColor = "";
 //					if(Holes.get(pos).getColor().equals("blue")) {
 //						System.out.print(ConsoleColors.BLUE + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
 //						res += "#" + Integer.toString(Holes.get(pos).getDepth());
@@ -445,7 +481,10 @@ public abstract class AbstractGridEnvironment implements Environment
 //						System.out.print(ConsoleColors.GREEN + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
 //						res += "#" + Integer.toString(Holes.get(pos).getDepth());
 //					}
-					k+=2*tileStacks.get(pos).size();
+					if(agentString.equals("")==true)
+						k+=2*tileStacks.get(pos).size();
+					else 
+						k+=2*tileStacks.get(pos).size()+1;
 				}
 				if(agentString.length() > 0)
 				{

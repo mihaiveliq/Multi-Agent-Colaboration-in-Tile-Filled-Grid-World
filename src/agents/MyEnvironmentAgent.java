@@ -12,12 +12,14 @@ import base.Environment;
 import classes.Hole;
 import classes.TileStack;
 import gridworld.*;
+import gridworld.AbstractGridEnvironment.GridAgentData;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.AchieveREInitiator;
+import my.MyAgentData;
 import my.MyEnvironment;
 import classes.ConsoleColors;
 //import platform.Log;
@@ -106,6 +108,11 @@ public class MyEnvironmentAgent extends Agent {
     	env.initialize(all, holesPositions, obstacles, tileStackPositions);
         for (Map.Entry<String,GridPosition> agent : agentConfig.entrySet()) {
             // aici sunt culoarea si pozitia agentului
+        	MyAgentData ag =new MyAgentData();
+        	String agentColor = agent.getKey();
+        	GridPosition agentPosition = agent.getValue();
+    		GridAgentData gridAgentData = new GridAgentData(ag, agentColor, agentPosition, GridOrientation.NORTH);
+        	this.env.addAgent(gridAgentData);
         }
     	env.printToString();
     	//System.out.println(tileStackPositions);
