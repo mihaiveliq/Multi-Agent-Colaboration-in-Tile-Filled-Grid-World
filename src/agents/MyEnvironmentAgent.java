@@ -118,9 +118,10 @@ public class MyEnvironmentAgent extends Agent {
     	//System.out.println(tileStackPositions);
 
 
-        ParallelBehaviour pb = new ParallelBehaviour(this, ParallelBehaviour.WHEN_ALL);
+//        ParallelBehaviour pb = new ParallelBehaviour(this, ParallelBehaviour.WHEN_ALL);
 
-        pb.addSubBehaviour(new WakerBehaviour(this, T) {
+//        pb.addSubBehaviour(new WakerBehaviour(this, T) {
+        addBehaviour(new WakerBehaviour(this, T) {
             protected void onWake() {
                 System.out.println("Waker behaviour has completed after 5 seconds.");
                 // de trimis tuturor mesaje de terminare
@@ -128,27 +129,32 @@ public class MyEnvironmentAgent extends Agent {
             }
         });
 
-        pb.addSubBehaviour(new TickerBehaviour(this, t) {
+//        pb.addSubBehaviour(new TickerBehaviour(this, t) {
+        addBehaviour(new TickerBehaviour(this, t) {
             protected void onTick() {
                 env.printToString();
             }
         });
 
-        pb.addSubBehaviour(new TickerBehaviour(this, t) {
+//        pb.addSubBehaviour(new TickerBehaviour(this, t) {
+        addBehaviour(new TickerBehaviour(this, t) {
             protected void onTick() {
                 ACLMessage receivedMsg = myAgent.receive(registrationReceiptTemplate);
+
                 // register the agent if message received and is still
-                if(receivedMsg != null && getTickCount() >= MAX_TICKS) {
+                if(receivedMsg != null) {
                     AID childAID = receivedMsg.getSender();
 
-                    ((MyAgent) myAgent).addChildAgent(childAID);
+                    ((MyEnvironmentAgent) myAgent).addChildAgent(childAID);
                     System.out.println("Agent " + childAID.toString() + " connected.");
+//                    System.out.println(((MyEnvironmentAgent) myAgent).getChildAgents().toArray().length);
                 }
             }
         });
 
         // de customizat, eventual cu Publisher Subscriber
-        pb.addSubBehaviour(new AchieveREInitiator(this, null) {
+//        pb.addSubBehaviour(new AchieveREInitiator(this, null) {
+        addBehaviour(new AchieveREInitiator(this, null) {
             protected void handleInform(ACLMessage inform) {
                 System.out.println("Received response message: " + inform.getContent());
             }
@@ -158,7 +164,7 @@ public class MyEnvironmentAgent extends Agent {
             }
         });
 
-        addBehaviour(pb);
+//        addBehaviour(pb);
 
         // add the behavior that sends the registration message to the parent
 //        if(parentAID != null) {

@@ -92,6 +92,7 @@ public class MyAgent extends Agent {
     	MyAgentData ag =new MyAgentData();
     	String agentColor = (String)getArguments()[0];
     	GridPosition agentPosition = (GridPosition)getArguments()[1];
+        parentAID = (AID)getArguments()[2];
 		this.gridAgentData = new GridAgentData(ag, agentColor, agentPosition, GridOrientation.NORTH);
 
 //        Log.log(this, "Hello. Parent is", parentAID);
@@ -99,7 +100,7 @@ public class MyAgent extends Agent {
         // add the behavior that sends the registration message to the parent
         if(parentAID != null) {
 //            Log.log(this, "Registration sender behavior for this agent starts in 1 second");
-            addBehaviour(new WakerBehaviour(this, 1000) {
+            addBehaviour(new WakerBehaviour(this, 0) {
                 @Override
                 protected void onWake() {
                     // Create the registration message as a simple INFORM message

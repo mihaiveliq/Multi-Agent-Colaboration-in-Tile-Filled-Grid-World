@@ -1,8 +1,7 @@
 package platform;
 
 import gridworld.GridPosition;
-import jade.core.Profile;
-import jade.core.ProfileImpl;
+import jade.core.*;
 import jade.core.Runtime;
 import jade.util.ExtendedProperties;
 import jade.util.leap.Properties;
@@ -167,12 +166,14 @@ public class MainContainerLauncher {
 					MyEnvironmentAgent.class.getName(), new Object[] { holesPositions, obstacles, tileStackPositions, widthMap, heightMap, operationTime, totalSimulationTime, agentConfig });
 			agentEnvCtrl.start();
 
+			AID parentAID = new AID("Environment", AID.ISLOCALNAME);
+
 			for(String agColor : agentConfig.keySet()) {
 				GridPosition agentPosition = agentConfig.get(agColor);
-				
-				
+
+
 				AgentController agentCtrl = mainContainer.createNewAgent(agColor,
-						MyAgent.class.getName(), new Object[] { agColor, agentPosition });
+						MyAgent.class.getName(), new Object[] { agColor, agentPosition, parentAID });
 				agentCtrl.start();
 			}
 			//holesPositions, obstacles, tileStackPositions
