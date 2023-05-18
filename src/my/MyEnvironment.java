@@ -1,8 +1,6 @@
 package my;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import base.Action;
 import base.Perceptions;
@@ -100,7 +98,6 @@ public class MyEnvironment extends AbstractGridEnvironment {
 		public GridOrientation getAbsoluteOrientation() {
 			return absoluteOrientation;
 		}
-		
 	}
 	
 	/**

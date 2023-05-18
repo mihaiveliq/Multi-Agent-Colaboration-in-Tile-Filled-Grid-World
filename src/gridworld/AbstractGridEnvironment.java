@@ -178,6 +178,16 @@ public abstract class AbstractGridEnvironment implements Environment
 	 * List of all the agents in the environment.
 	 */
 	protected List<GridAgentData>	agents	= new ArrayList<>();
+
+	protected Queue<String> messageBox = new LinkedList<>();
+
+	public Queue<String> getMessageBox() {
+		return messageBox;
+	}
+
+	public void addMessage(String message) {
+		this.messageBox.add(message);
+	}
 	
 	/**
 	 * @return <code>true</code> if there are no more JTiles.

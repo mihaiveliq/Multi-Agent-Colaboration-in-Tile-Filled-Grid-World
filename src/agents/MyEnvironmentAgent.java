@@ -146,9 +146,18 @@ public class MyEnvironmentAgent extends Agent {
                     AID childAID = receivedMsg.getSender();
 
                     ((MyEnvironmentAgent) myAgent).addChildAgent(childAID);
-                    System.out.println("Agent " + childAID.toString() + " connected.");
+                    ((MyEnvironmentAgent) myAgent).env.addMessage("Agent " + childAID.toString() + " connected.");
+//                    System.out.println("Agent " + childAID.toString() + " connected.");
 //                    System.out.println(((MyEnvironmentAgent) myAgent).getChildAgents().toArray().length);
                 }
+            }
+        });
+
+        addBehaviour(new TickerBehaviour(this, t) {
+            protected void onTick() {
+                // register the agent if message received and is still
+                if(!((MyEnvironmentAgent) myAgent).env.getMessageBox().isEmpty())
+                    System.out.println(((MyEnvironmentAgent) myAgent).env.getMessageBox().remove());
             }
         });
 
