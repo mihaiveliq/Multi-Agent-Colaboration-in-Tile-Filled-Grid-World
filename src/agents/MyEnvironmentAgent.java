@@ -22,6 +22,7 @@ import jade.proto.AchieveREInitiator;
 import my.MyAgentData;
 import my.MyEnvironment;
 import classes.ConsoleColors;
+import my.MyEnvironment.MyAgentPerceptions;
 //import platform.Log;
 
 /**
@@ -88,13 +89,18 @@ public class MyEnvironmentAgent extends Agent {
         return childAgents;
     }
 
-    @SuppressWarnings("serial")
+    @SuppressWarnings({ "serial", "unchecked"})
     @Override
     protected void setup() {
     	//holesPositions, obstacles, tileStackPositions
     	Map<GridPosition, Hole> holesPositions=(Map<GridPosition, Hole>)getArguments()[0];
     	Set<GridPosition> obstacles =(Set<GridPosition>)getArguments()[1];
     	Map<GridPosition,  LinkedList<TileStack>> tileStackPositions= (Map<GridPosition,  LinkedList<TileStack>>)getArguments()[2];
+    	
+    	//perceptiile initiale -> pot fi create si direct cand trimite mediul perceptiile agentilor
+    	//la fiecare interogare a agentilor pentru perceptii se vor crea perceptii noi cu variabilele curente din env
+    	MyAgentPerceptions perceptions = new MyAgentPerceptions(holesPositions, obstacles, tileStackPositions);
+    	
     	int widthMap = ((Integer) getArguments()[3]).intValue();
     	int heightMap = ((Integer) getArguments()[4]).intValue();
         int t = ((Integer) getArguments()[5]).intValue();
