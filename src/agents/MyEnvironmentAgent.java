@@ -18,7 +18,7 @@ import jade.core.Agent;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jade.proto.AchieveREInitiator;
+import jade.proto.*;
 import my.MyAgentData;
 import my.MyEnvironment;
 import classes.ConsoleColors;
@@ -163,6 +163,7 @@ public class MyEnvironmentAgent extends Agent {
 
         // de customizat, eventual cu Publisher Subscriber
 //        pb.addSubBehaviour(new AchieveREInitiator(this, null) {
+        // initiator sa anunte un agent atunci cand a executat o actiune
         addBehaviour(new AchieveREInitiator(this, null) {
             protected void handleInform(ACLMessage inform) {
                 System.out.println("Received response message: " + inform.getContent());
@@ -172,6 +173,40 @@ public class MyEnvironmentAgent extends Agent {
                 System.out.println("Received failure message: " + failure.getContent());
             }
         });
+
+        // receptor atunci cand i se cere starea mediului
+        addBehaviour(new AchieveREResponder(this, null) {
+//            protected ACLMessage prepareResponse(ACLMessage request) throws NotUnderstoodException, RefuseException {
+//                System.out.println("Agent "+getLocalName()+": REQUEST received from "+request.getSender().getName()+". Action is "+request.getContent());
+//                if (checkAction()) {
+//                    // We agree to perform the action. Note that in the FIPA-Request
+//                    // protocol the AGREE message is optional. Return null if you
+//                    // don't want to send it.
+//                    System.out.println("Agent "+getLocalName()+": Agree");
+//                    ACLMessage agree = request.createReply();
+//                    agree.setPerformative(ACLMessage.AGREE);
+//                    return agree;
+//                }
+//                else {
+//                    // We refuse to perform the action
+//                    System.out.println("Agent "+getLocalName()+": Refuse");
+//                    throw new RefuseException("check-failed");
+//                }
+//            }
+//
+//            protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response) throws FailureException {
+//                if (performAction()) {
+//                    System.out.println("Agent "+getLocalName()+": Action successfully performed");
+//                    ACLMessage inform = request.createReply();
+//                    inform.setPerformative(ACLMessage.INFORM);
+//                    return inform;
+//                }
+//                else {
+//                    System.out.println("Agent "+getLocalName()+": Action failed");
+//                    throw new FailureException("unexpected-error");
+//                }
+//            }
+        } );
 
 //        addBehaviour(pb);
 
