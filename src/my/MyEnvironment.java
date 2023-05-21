@@ -4,6 +4,8 @@ import java.util.*;
 
 import base.Action;
 import base.Perceptions;
+import classes.Hole;
+import classes.TileStack;
 import gridworld.*;
 
 /**
@@ -47,57 +49,47 @@ public class MyEnvironment extends AbstractGridEnvironment {
 	 * @author andreiolaru
 	 */
 	public static class MyAgentPerceptions implements Perceptions {
-		/**
-		 * Obstacles perceived. They are perceived as a relative orientation at which an obstacle is neighbor to the
-		 * agent. The orientation is relative to the absolute orientation of the agent.
-		 */
-		protected Set<GridRelativeOrientation>	obstacles;
-		/**
-		 * <code>true</code> if there is trash in the current tile.
-		 */
-		protected boolean						isOverJtile;
-		/**
-		 * The indication of the agent's compass.
-		 */
-		protected GridOrientation				absoluteOrientation;
-		
-		/**
-		 * @param obstacleOrientations
-		 *            - Obstacles perceived. They are perceived as a relative orientation at which an obstacle is
-		 *            neighbor to the agent. The orientation is relative to the absolute orientation of the agent.
-		 * @param jTile
-		 *            - <code>true</code> if there is trash in the current tile.
-		 * @param orientation
-		 *            - The indication of the agent's compass.
-		 */
-		public MyAgentPerceptions(Set<GridRelativeOrientation> obstacleOrientations, boolean jTile,
-				GridOrientation orientation) {
-			obstacles = new HashSet<>(obstacleOrientations);
-			isOverJtile = jTile;
-			absoluteOrientation = orientation;
+		protected Map<GridPosition, Hole> Holes;
+
+		protected Set<GridPosition> Obstacles;
+
+		protected Map<GridPosition, LinkedList<TileStack>> tileStacks;
+
+		protected List<GridAgentData>	otherAgents;
+
+		public MyAgentPerceptions(Map<GridPosition, Hole> holes, Set<GridPosition> obstacles,
+				Map<GridPosition, LinkedList<TileStack>> tileStacks, List<GridAgentData> otherAgents) {
+			super();
+			Holes = holes;
+			Obstacles = obstacles;
+			this.tileStacks = tileStacks;
+			this.otherAgents = otherAgents;
+		}
+
+		public MyAgentPerceptions(Map<GridPosition, Hole> holes, Set<GridPosition> obstacles,
+				Map<GridPosition, LinkedList<TileStack>> tileStacks) {
+			super();
+			Holes = holes;
+			Obstacles = obstacles;
+			this.tileStacks = tileStacks;
+		}
+
+		public Map<GridPosition, Hole> getHoles() {
+			return Holes;
+		}
+
+		public Set<GridPosition> getObstacles() {
+			return Obstacles;
+		}
+
+		public Map<GridPosition, LinkedList<TileStack>> getTileStacks() {
+			return tileStacks;
+		}
+
+		public List<GridAgentData> getOtherAgents() {
+			return otherAgents;
 		}
 		
-		/**
-		 * @return the obstacles, each obstacle perceived as a relative orientation at which the obstacle is neighbor to
-		 *         the agent's current position. The orientation is relative to the absolute orientation of the agent.
-		 */
-		public Set<GridRelativeOrientation> getObstacles() {
-			return obstacles;
-		}
-		
-		/**
-		 * @return <code>true</code> if there is trash at the agent's current position.
-		 */
-		public boolean isOverJtile() {
-			return isOverJtile;
-		}
-		
-		/**
-		 * @return the indication of the agent's compass.
-		 */
-		public GridOrientation getAbsoluteOrientation() {
-			return absoluteOrientation;
-		}
 	}
 	
 	/**
