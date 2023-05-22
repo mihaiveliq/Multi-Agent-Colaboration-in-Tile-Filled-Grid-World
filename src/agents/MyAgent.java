@@ -69,6 +69,7 @@ public class MyAgent extends Agent {
     private final int MAX_EXECUTED_ACTIONS = 3;
     int currentActionInLoop = 0;
     boolean planWaiting = true;
+    int operationTime;
 
     /**
      * @param childAID
@@ -100,6 +101,7 @@ public class MyAgent extends Agent {
     	String agentColor = (String)getArguments()[0];
     	GridPosition agentPosition = (GridPosition)getArguments()[1];
         parentAID = (AID)getArguments()[2];
+        operationTime = ((Integer) getArguments()[3]).intValue();
 		this.gridAgentData = new GridAgentData(ag, agentColor, agentPosition, GridOrientation.NORTH);
 
         if(parentAID != null) {
@@ -123,7 +125,7 @@ public class MyAgent extends Agent {
         }
 
         // este initiator cand cere perceptii
-        addBehaviour(new CyclicPerecptionsRequestBehaviour());
+        addBehaviour(new CyclicPerceptionsRequestBehaviour());
 
         // este initiator cand trimite un plan
         addBehaviour(new SendPlanBehaviour());
@@ -160,7 +162,7 @@ public class MyAgent extends Agent {
     }
 
     // clasa care solicita perceptii
-    private class CyclicPerecptionsRequestBehaviour extends CyclicBehaviour {
+    private class CyclicPerceptionsRequestBehaviour extends CyclicBehaviour {
         public void action() {
 
             ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
@@ -173,8 +175,7 @@ public class MyAgent extends Agent {
                     System.out.println("Am primit perceptiile: "+inform.getContent() + " of Agent: " + myAgent.getName());
                 }
             });
-
-            block();
+            block((long)2*operationTime);
         }
     }
 

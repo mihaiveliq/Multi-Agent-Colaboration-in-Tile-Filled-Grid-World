@@ -359,7 +359,7 @@ public abstract class AbstractGridEnvironment implements Environment
 	{
 		// border top
 		String res = "";
-		String agentColor = "";
+		Set<String> agentsColor = new HashSet<>();
 		Timestamp ts = new Timestamp(System.currentTimeMillis());
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		System.out.println(sdf1.format(ts));
@@ -399,12 +399,13 @@ public abstract class AbstractGridEnvironment implements Environment
 			for(int i = x0; i <= x1; i++)
 			{
 				GridPosition pos = new GridPosition(i, j);
-				String agentString = "";
+				String agentString = "@";
+				agentsColor.clear();
 				for(GridAgentData agent : agents)
 					if(agent.getPosition().equals(pos)) {
-						agentString += "@";
-						agentColor = agent.getColor();
+						agentsColor.add(agent.getColor());
 					}
+				//System.out.println("\nPosition is " + pos+ " Agents " + agentsColor+  "\n");
 				int k = 0;
 				if(Obstacles.contains(pos))
 					for(; k < cellW; k++) {
@@ -449,42 +450,44 @@ public abstract class AbstractGridEnvironment implements Environment
 							break;
 						}
 					}
-					if(agentString.equals("")==false)
-					switch(agentColor) {
-					case "blue":
-						System.out.print(ConsoleColors.BLUE + agentString + ConsoleColors.RESET);
-						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
-						break;
-					case "green":
-						System.out.print(ConsoleColors.GREEN + agentString + ConsoleColors.RESET);
-						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
-						break;
-					case "red":
-						System.out.print(ConsoleColors.RED + agentString + ConsoleColors.RESET);
-						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
-						break;
-					case "yellow":
-						System.out.print(ConsoleColors.YELLOW_BRIGHT + agentString + ConsoleColors.RESET);
-						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
-						break;
-					case "pink":
-						System.out.print(ConsoleColors.PURPLE_BRIGHT + agentString + ConsoleColors.RESET);
-						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
-						break;
-					case "orange":
-						System.out.print(ConsoleColors.YELLOW +agentString + ConsoleColors.RESET);
-						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
-						break;
-					case "violet":
-						System.out.print(ConsoleColors.PURPLE + agentString + ConsoleColors.RESET);
-						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
-						break;
-					case "maroon":
-						System.out.print(ConsoleColors.BLACK_BRIGHT +  agentString + ConsoleColors.RESET);
-						//res += "#" + Integer.toString(Holes.get(pos).getDepth());
-						break;
-					}
-					agentColor = "";
+					k+=2*tileStacks.get(pos).size();
+				}
+				if(agentsColor.isEmpty()==false)
+					for(String agentColor: agentsColor)
+						switch(agentColor) {
+						case "blue":
+							System.out.print(ConsoleColors.BLUE + agentString + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "green":
+							System.out.print(ConsoleColors.GREEN + agentString + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "red":
+							System.out.print(ConsoleColors.RED + agentString + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "yellow":
+							System.out.print(ConsoleColors.YELLOW_BRIGHT + agentString + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "pink":
+							System.out.print(ConsoleColors.PURPLE_BRIGHT + agentString + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "orange":
+							System.out.print(ConsoleColors.YELLOW +agentString + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "violet":
+							System.out.print(ConsoleColors.PURPLE + agentString + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						case "maroon":
+							System.out.print(ConsoleColors.BLACK_BRIGHT +  agentString + ConsoleColors.RESET);
+							//res += "#" + Integer.toString(Holes.get(pos).getDepth());
+							break;
+						}
 //					if(Holes.get(pos).getColor().equals("blue")) {
 //						System.out.print(ConsoleColors.BLUE + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
 //						res += "#" + Integer.toString(Holes.get(pos).getDepth());
@@ -493,42 +496,42 @@ public abstract class AbstractGridEnvironment implements Environment
 //						System.out.print(ConsoleColors.GREEN + "#" + Integer.toString(Holes.get(pos).getDepth()) + ConsoleColors.RESET);
 //						res += "#" + Integer.toString(Holes.get(pos).getDepth());
 //					}
-					if(agentString.equals("")==true)
-						k+=2*tileStacks.get(pos).size();
-					else 
-						k+=2*tileStacks.get(pos).size()+1;
-				}
-				if(agentString.length() > 0)
-				{
-					if(cellW == 1)
-					{
-						if(agentString.length() > 1) {
-							System.out.print(".");
-							res += ".";
-						}
-						else {
-							System.out.print(agentString);
-							res += agentString;
-						}
-						k++;
-					}
-					else
-					{
-						
-						System.out.print(ConsoleColors.GREEN +agentString.substring(0, Math.min(agentString.length(), cellW - k)));
-						res += agentString.substring(0, Math.min(agentString.length(), cellW - k));
-						k += Math.min(agentString.length(), cellW - k);
-					}
-				}
+					if(agentsColor.isEmpty()==false)
+						k+=agentsColor.size();
+				
+//				if(agentString.length() > 0)
+//				{
+//					if(cellW == 1)
+//					{
+//						if(agentString.length() > 1) {
+//							System.out.print(".");
+//							res += ".";
+//						}
+//						else {
+//							System.out.print(agentString);
+//							res += agentString;
+//						}
+//						k++;
+//					}
+//					else
+//					{
+//						
+//						System.out.print(ConsoleColors.GREEN +agentString.substring(0, Math.min(agentString.length(), cellW - k)) + ConsoleColors.RESET);
+//						res += agentString.substring(0, Math.min(agentString.length(), cellW - k));
+//						k += Math.min(agentString.length(), cellW - k);
+//					}
+//				}
 				for(; k < cellW; k++) {
 					System.out.print(" ");
 					res += " ";
 				}
 				System.out.print("|");
 				res += "|";
+			
 			}
 			System.out.print("\n");
 			res += "\n";
+		
 			// second cellrow
 			System.out.print("  |");
 			res += "  |";

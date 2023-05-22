@@ -173,7 +173,7 @@ public class MainContainerLauncher {
 
 
 				AgentController agentCtrl = mainContainer.createNewAgent(agColor,
-						MyAgent.class.getName(), new Object[] { agColor, agentPosition, parentAID });
+						MyAgent.class.getName(), new Object[] { agColor, agentPosition, parentAID, operationTime });
 				agentCtrl.start();
 			}
 			//holesPositions, obstacles, tileStackPositions
