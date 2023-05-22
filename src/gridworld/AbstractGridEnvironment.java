@@ -233,7 +233,7 @@ public abstract class AbstractGridEnvironment implements Environment
 	/**
 	 * Width of displayed cells.
 	 */
-	protected int	cellW	= 10;
+	protected int	cellW	= 12;
 	/**
 	 * Height of displayed cells.
 	 */
@@ -450,7 +450,8 @@ public abstract class AbstractGridEnvironment implements Environment
 							break;
 						}
 					}
-					k+=2*tileStacks.get(pos).size();
+					System.out.print(" ");
+					k+=2*tileStacks.get(pos).size() + 1;
 				}
 				if(agentsColor.isEmpty()==false)
 					for(String agentColor: agentsColor)

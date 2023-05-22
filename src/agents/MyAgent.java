@@ -125,16 +125,15 @@ public class MyAgent extends Agent {
         }
 
         // este initiator cand cere perceptii
-        addBehaviour(new CyclicPerceptionsRequestBehaviour());
+        addBehaviour(new CyclicPerceptionsRequestBehaviour(this));
 
         // este initiator cand trimite un plan
         addBehaviour(new SendPlanBehaviour());
 
         // este responder cand i se trimite o actiune executata
-        MessageTemplate sendPerceptionsResponderTemplate = MessageTemplate.and(
+        MessageTemplate sendPerceptionsResponderTemplate = MessageTemplate.and(MessageTemplate.and(
                 MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
-                MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
-        sendPerceptionsResponderTemplate.MatchConversationId("ExecutedAnAction");
+                MessageTemplate.MatchPerformative(ACLMessage.REQUEST)), MessageTemplate.MatchConversationId("ExecutedAnAction"));
 
         addBehaviour(new AchieveREResponder(this, sendPerceptionsResponderTemplate) {
             @Override
@@ -163,7 +162,12 @@ public class MyAgent extends Agent {
 
     // clasa care solicita perceptii
     private class CyclicPerceptionsRequestBehaviour extends CyclicBehaviour {
-        public void action() {
+    	
+        public CyclicPerceptionsRequestBehaviour(MyAgent myAgent) {
+			super(myAgent);
+		}
+
+		public void action() {
 
             ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
             request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
@@ -172,10 +176,12 @@ public class MyAgent extends Agent {
             addBehaviour(new AchieveREInitiator(myAgent, request) {
                 protected void handleInform(ACLMessage inform) {
                     // Process the inform message received in response to the request
-                    System.out.println("Am primit perceptiile: "+inform.getContent() + " of Agent: " + myAgent.getName());
+                	if(inform.getConversationId()=="Perceptions")
+                		System.out.println("Am primit perceptiile: "+inform.getContent() + " of Agent: " + myAgent.getName());
                 }
             });
-            block((long)2*operationTime);
+            //block((long)2*operationTime);
+            block();
         }
     }
 

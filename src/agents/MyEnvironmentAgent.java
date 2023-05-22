@@ -172,6 +172,7 @@ public class MyEnvironmentAgent extends Agent {
 
             protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response) throws FailureException {
                 ACLMessage inform = request.createReply();
+                inform.setConversationId("Perceptions");
                 inform.setPerformative(ACLMessage.INFORM);
                 inform.setContent("perceptii_inform");
                 return inform;
@@ -179,10 +180,9 @@ public class MyEnvironmentAgent extends Agent {
         } );
 
         // receptor atunci cand primeste planul
-        MessageTemplate sendPlanProcessedResponderTemplate = MessageTemplate.and(
+        MessageTemplate sendPlanProcessedResponderTemplate = MessageTemplate.and(MessageTemplate.and(
                 MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
-                MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
-        sendPerceptionsResponderTemplate.MatchConversationId("SendPlan");
+                MessageTemplate.MatchPerformative(ACLMessage.REQUEST)), MessageTemplate.MatchConversationId("SendPlan"));
 
         addBehaviour(new AchieveREResponder(this, sendPlanProcessedResponderTemplate) {
             @Override
