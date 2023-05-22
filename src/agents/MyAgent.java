@@ -150,6 +150,8 @@ public class MyAgent extends Agent {
                 inform.setPerformative(ACLMessage.INFORM);
                 inform.setContent("executed_an_action_inform");
                 System.out.println("Prepare inform:  " + request.getContent());
+                // reconfigurez planul in functie de ce validare a ultimei actiuni primesc / sau in functie de perceptii
+                //
                 planWaiting = true;
                 return inform;
             }
@@ -179,7 +181,7 @@ public class MyAgent extends Agent {
     // odata executata o comanda, trimite planul nou
     private class SendPlanBehaviour extends CyclicBehaviour {
         public void action() {
-
+            // planul asteapta sa fie trimis
             if (planWaiting) {
                 ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
                 request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
