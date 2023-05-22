@@ -10,8 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import base.Environment;
-import classes.Hole;
-import classes.TileStack;
+import classes.*;
 import gridworld.*;
 import gridworld.AbstractGridEnvironment.GridAgentData;
 import jade.core.AID;
@@ -24,7 +23,6 @@ import jade.lang.acl.MessageTemplate;
 import jade.proto.*;
 import my.MyAgentData;
 import my.MyEnvironment;
-import classes.ConsoleColors;
 import my.MyEnvironment.MyAgentPerceptions;
 //import platform.Log;
 
@@ -99,22 +97,26 @@ public class MyEnvironmentAgent extends Agent {
     	Map<GridPosition, Hole> holesPositions=(Map<GridPosition, Hole>)getArguments()[0];
     	Set<GridPosition> obstacles =(Set<GridPosition>)getArguments()[1];
     	Map<GridPosition,  LinkedList<TileStack>> tileStackPositions= (Map<GridPosition,  LinkedList<TileStack>>)getArguments()[2];
-    	
-    	//perceptiile initiale -> pot fi create si direct cand trimite mediul perceptiile agentilor
-    	//la fiecare interogare a agentilor pentru perceptii se vor crea perceptii noi cu variabilele curente din env
-    	MyAgentPerceptions perceptions = new MyAgentPerceptions(holesPositions, obstacles, tileStackPositions);
+
+        //perceptiile initiale -> pot fi create si direct cand trimite mediul perceptiile agentilor
+        //la fiecare interogare a agentilor pentru perceptii se vor crea perceptii noi cu variabilele curente din env
+        MyAgentPerceptions perceptions = new MyAgentPerceptions(holesPositions, obstacles, tileStackPositions);
     	
     	int widthMap = ((Integer) getArguments()[3]).intValue();
     	int heightMap = ((Integer) getArguments()[4]).intValue();
         int t = ((Integer) getArguments()[5]).intValue();
         int T = ((Integer) getArguments()[6]).intValue();
         Map<String, GridPosition> agentConfig = (Map<String, GridPosition>)getArguments()[7];
+
     	env = new MyEnvironment();
+
     	Set<GridPosition> all = new HashSet<>();
     	for(int i = 0; i < widthMap; i++)
 			for(int j = 0; j < heightMap ; j++)
 				all.add(new GridPosition(i, j));
+
     	env.initialize(all, holesPositions, obstacles, tileStackPositions);
+
         for (Map.Entry<String,GridPosition> agent : agentConfig.entrySet()) {
             // aici sunt culoarea si pozitia agentului
         	MyAgentData ag =new MyAgentData();
@@ -123,11 +125,12 @@ public class MyEnvironmentAgent extends Agent {
     		GridAgentData gridAgentData = new GridAgentData(ag, agentColor, agentPosition, GridOrientation.NORTH);
         	this.env.addAgent(gridAgentData);
         }
+
     	env.printToString();
 
         addBehaviour(new WakerBehaviour(this, T) {
             protected void onWake() {
-                System.out.println("Waker behaviour has completed after 5 seconds.");
+                System.out.println("Jocul s-a terminat.");
                 myAgent.doDelete();
             }
         });
@@ -142,36 +145,12 @@ public class MyEnvironmentAgent extends Agent {
             protected void onTick() {
                 ACLMessage receivedMsg = myAgent.receive(registrationReceiptTemplate);
 
-                // register the agent if message received and is still
                 if(receivedMsg != null) {
                     AID childAID = receivedMsg.getSender();
 
                     ((MyEnvironmentAgent) myAgent).addChildAgent(childAID);
-                    ((MyEnvironmentAgent) myAgent).env.addMessage("Agent " + childAID.toString() + " connected.");
-//                    System.out.println("Agent " + childAID.toString() + " connected.");
-//                    System.out.println(((MyEnvironmentAgent) myAgent).getChildAgents().toArray().length);
+                    ((MyEnvironmentAgent) myAgent).env.addMessage(new Message("Agent " + childAID.toString() + " connected.", childAID));
                 }
-            }
-        });
-
-        addBehaviour(new TickerBehaviour(this, t) {
-            protected void onTick() {
-                // register the agent if message received and is still
-                if(!((MyEnvironmentAgent) myAgent).env.getMessageBox().isEmpty())
-                    System.out.println(((MyEnvironmentAgent) myAgent).env.getMessageBox().remove());
-            }
-        });
-
-        // de customizat, eventual cu Publisher Subscriber
-//        pb.addSubBehaviour(new AchieveREInitiator(this, null) {
-        // initiator sa anunte un agent atunci cand a executat o actiune
-        addBehaviour(new AchieveREInitiator(this, null) {
-            protected void handleInform(ACLMessage inform) {
-                System.out.println("Received response message: " + inform.getContent());
-            }
-
-            protected void handleFailure(ACLMessage failure) {
-                System.out.println("Received failure message: " + failure.getContent());
             }
         });
 
@@ -180,93 +159,85 @@ public class MyEnvironmentAgent extends Agent {
                 MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
                 MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
         sendPerceptionsResponderTemplate.MatchConversationId("Perceptions");
+
         addBehaviour(new AchieveREResponder(this, sendPerceptionsResponderTemplate) {
             @Override
             @Deprecated
             protected ACLMessage prepareResponse(ACLMessage request) throws NotUnderstoodException, RefuseException {
                 ACLMessage agree = request.createReply();
                 agree.setPerformative(ACLMessage.AGREE);
-//                try {
-//                    ObjectOutputStream objectOutputStream = new ObjectOutputStream();
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                agree.setContentObject(objectOutputStream);
-
                 agree.setContent("perceptii_response");
                 return agree;
             }
 
             protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response) throws FailureException {
-//                if (performAction()) {
-//                    System.out.println("Agent "+getLocalName()+": Action successfully performed");
                 ACLMessage inform = request.createReply();
                 inform.setPerformative(ACLMessage.INFORM);
                 inform.setContent("perceptii_inform");
                 return inform;
-//                }
-//                else {
-//                    System.out.println("Agent "+getLocalName()+": Action failed");
-//                    throw new FailureException("unexpected-error");
-//                }
             }
         } );
 
-//        addBehaviour(pb);
+        // receptor atunci cand primeste planul
+        MessageTemplate sendPlanProcessedResponderTemplate = MessageTemplate.and(
+                MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
+                MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
+        sendPerceptionsResponderTemplate.MatchConversationId("SendPlan");
 
-        // add the behavior that sends the registration message to the parent
-//        if(parentAID != null) {
-////            Log.log(this, "Registration sender behavior for this agent starts in 1 second");
-//            addBehaviour(new WakerBehaviour(this, 1000) {
-//                @Override
-//                protected void onWake() {
-//                    // Create the registration message as a simple INFORM message
-//                    ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-//                    msg.setProtocol(REGISTRATION_PROTOCOL);
-//                    msg.setConversationId("registration-" + myAgent.getName());
-//                    msg.addReceiver(parentAID);
-//
-//                    myAgent.send(msg);
-//                }
-//
-//                @Override
-//                public int onEnd() {
-////                    Log.logIP(myAgent, REGISTRATION_PROTOCOL, parentAID, "message sent");
-//                    return super.onEnd();
-//                }
-//            });
-//        }
-//        else
-////            Log.log(this, "Registration sender behavior need not start for agent", getAID().getName());
-//
-//            // add the RegistrationReceiveBehavior
-//            addBehaviour(new TickerBehaviour(this, TICK_PERIOD) {
-//                @Override
-//                protected void onTick() {
-//                    ACLMessage receivedMsg = myAgent.receive(registrationReceiptTemplate);
-//                    // register the agent if message received
-//                    if(receivedMsg != null) {
-//                        AID childAID = receivedMsg.getSender();
-//                        ((MyAgent) myAgent).addChildAgent(childAID);
-//                    }
-//                    // if number of ticks surpassed, take down the agent
-//                    if(getTickCount() >= MAX_TICKS) {
-//                        stop();
-//
-//                        // TODO: comment this out once you add the other behaviors as well
-//                        //myAgent.doDelete();
-//                    }
-//                }
-//            });
+        addBehaviour(new AchieveREResponder(this, sendPlanProcessedResponderTemplate) {
+            @Override
+            @Deprecated
+            protected ACLMessage prepareResponse(ACLMessage request) throws NotUnderstoodException, RefuseException {
+                ACLMessage agree = request.createReply();
+                agree.setPerformative(ACLMessage.AGREE);
+                agree.setContent("plan_procesat_response");
+                return agree;
+            }
+
+            protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response) throws FailureException {
+                ACLMessage inform = request.createReply();
+                inform.setPerformative(ACLMessage.INFORM);
+                inform.setContent("plan_procesat_inform");
+                ((MyEnvironmentAgent) myAgent).env.addMessage(new Message(request.getContent(), request.getSender()));
+                return inform;
+            }
+        } );
+
+        // initiator atunci cand a executat o comanda din messagebox
+        addBehaviour(new ExecuteCommandBehaviour(this, t));
+    }
+
+    // odata la niste secunde executa o comanda din messagebox si trimite feedback agentului
+    private class ExecuteCommandBehaviour extends TickerBehaviour {
+
+        public ExecuteCommandBehaviour(Agent agent, long period) {
+            super(agent, period);
+        }
+
+        protected void onTick() {
+            Message message;
+            if (!((MyEnvironmentAgent) myAgent).env.getMessageBox().isEmpty()) {
+                message = (((MyEnvironmentAgent) myAgent).env.getMessageBox().remove());
+
+                // execute command, va trimite flag-ul care indica daca s a executat actiunea
+
+                ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
+                request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                request.addReceiver(message.sender);
+                request.setConversationId("ExecutedAnAction");
+                request.setContent(message.message);
+                addBehaviour(new AchieveREInitiator(myAgent, request) {
+                    protected void handleInform(ACLMessage inform) {
+                        // Process the inform message received in response to the request
+                        System.out.println(inform.getContent());
+                    }
+                });
+            }
+        }
     }
 
     @Override
     protected void takeDown() {
-//        String children = "";
-//        for(AID childAID : childAgents)
-//            children += childAID.getLocalName() + "  ";
-//        Log.log(this, "has the following children: ", children);
-        // de afisat punctajele
     }
 }
 

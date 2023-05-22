@@ -1,5 +1,6 @@
 package gridworld;
 
+import java.security.KeyPair;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -7,6 +8,7 @@ import java.util.*;
 import base.Agent;
 import base.Environment;
 import classes.*;
+import jade.core.AID;
 
 /**
  * Abstract implementation of an environment.
@@ -179,13 +181,13 @@ public abstract class AbstractGridEnvironment implements Environment
 	 */
 	protected List<GridAgentData>	agents	= new ArrayList<>();
 
-	protected Queue<String> messageBox = new LinkedList<>();
+	protected Queue<Message> messageBox = new LinkedList<>();
 
-	public Queue<String> getMessageBox() {
+	public Queue<Message> getMessageBox() {
 		return messageBox;
 	}
 
-	public void addMessage(String message) {
+	public void addMessage(Message message) {
 		this.messageBox.add(message);
 	}
 	

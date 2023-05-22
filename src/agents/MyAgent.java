@@ -4,16 +4,18 @@ import java.util.LinkedList;
 import java.util.List;
 
 import base.Environment;
+import classes.Message;
 import gridworld.*;
 import gridworld.AbstractGridEnvironment.GridAgentData;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
+import jade.domain.FIPAAgentManagement.*;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 //import platform.Log;
-import jade.proto.AchieveREInitiator;
+import jade.proto.*;
 import my.MyAgentData;
 
 /**
@@ -66,6 +68,7 @@ public class MyAgent extends Agent {
     int							agentValue;
     private final int MAX_EXECUTED_ACTIONS = 3;
     int currentActionInLoop = 0;
+    boolean planWaiting = true;
 
     /**
      * @param childAID
@@ -99,11 +102,7 @@ public class MyAgent extends Agent {
         parentAID = (AID)getArguments()[2];
 		this.gridAgentData = new GridAgentData(ag, agentColor, agentPosition, GridOrientation.NORTH);
 
-//        Log.log(this, "Hello. Parent is", parentAID);
-
-        // add the behavior that sends the registration message to the parent
         if(parentAID != null) {
-//            Log.log(this, "Registration sender behavior for this agent starts in 1 second");
             addBehaviour(new WakerBehaviour(this, 0) {
                 @Override
                 protected void onWake() {
@@ -118,31 +117,88 @@ public class MyAgent extends Agent {
 
                 @Override
                 public int onEnd() {
-//                    Log.logIP(myAgent, REGISTRATION_PROTOCOL, parentAID, "message sent");
                     return super.onEnd();
                 }
             });
         }
 
-        ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
-        request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-        request.addReceiver(parentAID);
-//        request.setContent("Request message content"); // Set the request content
-        request.setConversationId("Perceptions");
+        // este initiator cand cere perceptii
+        addBehaviour(new CyclicPerecptionsRequestBehaviour());
 
-//        addBehaviour(new OneShotBehaviour() {
-//            public void action() {
-//                send(request); // Send the request message
-//            }
-//        });
+        // este initiator cand trimite un plan
+        addBehaviour(new SendPlanBehaviour());
 
-        addBehaviour(new AchieveREInitiator(this, request) {
-            protected void handleInform(ACLMessage inform) {
-                System.out.println("Am primit perceptiile: "+inform.getContent());
+        // este responder cand i se trimite o actiune executata
+        MessageTemplate sendPerceptionsResponderTemplate = MessageTemplate.and(
+                MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
+                MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
+        sendPerceptionsResponderTemplate.MatchConversationId("ExecutedAnAction");
+
+        addBehaviour(new AchieveREResponder(this, sendPerceptionsResponderTemplate) {
+            @Override
+            @Deprecated
+            protected ACLMessage prepareResponse(ACLMessage request) throws NotUnderstoodException, RefuseException {
+                ACLMessage agree = request.createReply();
+                agree.setPerformative(ACLMessage.AGREE);
+                agree.setContent("executed_an_action_response");
+//                System.out.println("Prepare agree:  " + request.getContent());
+                return agree;
             }
-        });
 
+            protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response) throws FailureException {
+                ACLMessage inform = request.createReply();
+                inform.setPerformative(ACLMessage.INFORM);
+                inform.setContent("executed_an_action_inform");
+                System.out.println("Prepare inform:  " + request.getContent());
+                planWaiting = true;
+                return inform;
+            }
+        } );
 
+    }
+
+    // clasa care solicita perceptii
+    private class CyclicPerecptionsRequestBehaviour extends CyclicBehaviour {
+        public void action() {
+
+            ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
+            request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+            request.addReceiver(parentAID);
+            request.setConversationId("Perceptions");
+            addBehaviour(new AchieveREInitiator(myAgent, request) {
+                protected void handleInform(ACLMessage inform) {
+                    // Process the inform message received in response to the request
+                    System.out.println("Am primit perceptiile: "+inform.getContent() + " of Agent: " + myAgent.getName());
+                }
+            });
+
+            block();
+        }
+    }
+
+    // odata executata o comanda, trimite planul nou
+    private class SendPlanBehaviour extends CyclicBehaviour {
+        public void action() {
+
+            if (planWaiting) {
+                ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
+                request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+                request.addReceiver(parentAID);
+                request.setConversationId("SendPlan");
+
+                // metoda de configurare a planului, momentan adaug un plan aiurea
+                request.setContent("Plan al agentului " + myAgent.getName());
+                planWaiting = false;
+                addBehaviour(new AchieveREInitiator(myAgent, request) {
+                    protected void handleInform(ACLMessage inform) {
+                        // Process the inform message received in response to the request
+                        System.out.println("Prima instructiune din plan a fost stocata in MessageBox: " + inform.getContent() + " of Agent: " + myAgent.getName());
+                    }
+                });
+            }
+
+            block();
+        }
     }
 
     @Override
