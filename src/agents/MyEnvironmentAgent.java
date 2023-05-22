@@ -1,5 +1,6 @@
 package agents;
 
+import java.io.*;
 import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +17,8 @@ import gridworld.AbstractGridEnvironment.GridAgentData;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
+import jade.domain.FIPAAgentManagement.*;
+import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.proto.*;
@@ -121,28 +124,20 @@ public class MyEnvironmentAgent extends Agent {
         	this.env.addAgent(gridAgentData);
         }
     	env.printToString();
-    	//System.out.println(tileStackPositions);
 
-
-//        ParallelBehaviour pb = new ParallelBehaviour(this, ParallelBehaviour.WHEN_ALL);
-
-//        pb.addSubBehaviour(new WakerBehaviour(this, T) {
         addBehaviour(new WakerBehaviour(this, T) {
             protected void onWake() {
                 System.out.println("Waker behaviour has completed after 5 seconds.");
-                // de trimis tuturor mesaje de terminare
                 myAgent.doDelete();
             }
         });
 
-//        pb.addSubBehaviour(new TickerBehaviour(this, t) {
         addBehaviour(new TickerBehaviour(this, t) {
             protected void onTick() {
                 env.printToString();
             }
         });
 
-//        pb.addSubBehaviour(new TickerBehaviour(this, t) {
         addBehaviour(new TickerBehaviour(this, t) {
             protected void onTick() {
                 ACLMessage receivedMsg = myAgent.receive(registrationReceiptTemplate);
@@ -181,37 +176,26 @@ public class MyEnvironmentAgent extends Agent {
         });
 
         // receptor atunci cand i se cere starea mediului
-        addBehaviour(new AchieveREResponder(this, null) {
-//            protected ACLMessage prepareResponse(ACLMessage request) throws NotUnderstoodException, RefuseException {
-//                System.out.println("Agent "+getLocalName()+": REQUEST received from "+request.getSender().getName()+". Action is "+request.getContent());
-//                if (checkAction()) {
-//                    // We agree to perform the action. Note that in the FIPA-Request
-//                    // protocol the AGREE message is optional. Return null if you
-//                    // don't want to send it.
-//                    System.out.println("Agent "+getLocalName()+": Agree");
-//                    ACLMessage agree = request.createReply();
-//                    agree.setPerformative(ACLMessage.AGREE);
-//                    return agree;
+        MessageTemplate sendPerceptionsResponderTemplate = MessageTemplate.and(
+                MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
+                MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
+        sendPerceptionsResponderTemplate.MatchConversationId("Perceptions");
+        addBehaviour(new AchieveREResponder(this, sendPerceptionsResponderTemplate) {
+            @Override
+            @Deprecated
+            protected ACLMessage prepareResponse(ACLMessage request) throws NotUnderstoodException, RefuseException {
+                ACLMessage agree = request.createReply();
+                agree.setPerformative(ACLMessage.AGREE);
+//                try {
+//                    ObjectOutputStream objectOutputStream = new ObjectOutputStream();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
 //                }
-//                else {
-//                    // We refuse to perform the action
-//                    System.out.println("Agent "+getLocalName()+": Refuse");
-//                    throw new RefuseException("check-failed");
-//                }
-//            }
-//
-//            protected ACLMessage prepareResultNotification(ACLMessage request, ACLMessage response) throws FailureException {
-//                if (performAction()) {
-//                    System.out.println("Agent "+getLocalName()+": Action successfully performed");
-//                    ACLMessage inform = request.createReply();
-//                    inform.setPerformative(ACLMessage.INFORM);
-//                    return inform;
-//                }
-//                else {
-//                    System.out.println("Agent "+getLocalName()+": Action failed");
-//                    throw new FailureException("unexpected-error");
-//                }
-//            }
+//                agree.setContentObject(objectOutputStream);
+
+                agree.setContent("perceptii");
+                return agree;
+            }
         } );
 
 //        addBehaviour(pb);

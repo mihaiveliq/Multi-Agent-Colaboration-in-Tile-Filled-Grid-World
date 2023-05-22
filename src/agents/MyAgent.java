@@ -9,9 +9,11 @@ import gridworld.AbstractGridEnvironment.GridAgentData;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
+import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 //import platform.Log;
+import jade.proto.AchieveREInitiator;
 import my.MyAgentData;
 
 /**
@@ -62,6 +64,8 @@ public class MyAgent extends Agent {
      * The value associated to the agent.
      */
     int							agentValue;
+    private final int MAX_EXECUTED_ACTIONS = 3;
+    int currentActionInLoop = 0;
 
     /**
      * @param childAID
@@ -119,28 +123,26 @@ public class MyAgent extends Agent {
                 }
             });
         }
-        else
-//            Log.log(this, "Registration sender behavior need not start for agent", getAID().getName());
 
-        // add the RegistrationReceiveBehavior
-        addBehaviour(new TickerBehaviour(this, TICK_PERIOD) {
-            @Override
-            protected void onTick() {
-                ACLMessage receivedMsg = myAgent.receive(registrationReceiptTemplate);
-                // register the agent if message received
-                if(receivedMsg != null) {
-                    AID childAID = receivedMsg.getSender();
-                    ((MyAgent) myAgent).addChildAgent(childAID);
-                }
-                // if number of ticks surpassed, take down the agent
-                if(getTickCount() >= MAX_TICKS) {
-                    stop();
+        ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
+        request.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+        request.addReceiver(parentAID);
+//        request.setContent("Request message content"); // Set the request content
+        request.setConversationId("Perceptions");
 
-                    // TODO: comment this out once you add the other behaviors as well
-                    //myAgent.doDelete();
-                }
+//        addBehaviour(new OneShotBehaviour() {
+//            public void action() {
+//                send(request); // Send the request message
+//            }
+//        });
+
+        addBehaviour(new AchieveREInitiator(this, request) {
+            protected void handleInform(ACLMessage inform) {
+                System.out.println("Am primit perceptiile: "+inform.getContent());
             }
         });
+
+
     }
 
     @Override

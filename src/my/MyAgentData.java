@@ -23,9 +23,9 @@ public class MyAgentData implements Agent
 	{
 		// TODO Auto-generated method stub
 		MyEnvironment.MyAgentPerceptions percept = (MyEnvironment.MyAgentPerceptions) perceptions;
-		System.out.println("MyAgent sees current tile is " + (percept.isOverJtile() ? "dirty" : "clean")
-				+ "; current orientation is " + percept.getAbsoluteOrientation() + "; obstacles at: "
-				+ percept.getObstacles());
+//		System.out.println("MyAgent sees current tile is " + (percept.isOverJtile() ? "dirty" : "clean")
+//				+ "; current orientation is " + percept.getAbsoluteOrientation() + "; obstacles at: "
+//				+ percept.getObstacles());
 
 		List<MyEnvironment.MyAction> possibleChoices = new ArrayList<>();
 		List<MyEnvironment.MyAction> possibleBestChoices = new ArrayList<>();
@@ -35,8 +35,8 @@ public class MyAgentData implements Agent
 		fronts = lefts = rights = 0;
 
 		// // clean
-		if(percept.isOverJtile())
-			return MyEnvironment.MyAction.PICK;
+//		if(percept.isOverJtile())
+//			return MyEnvironment.MyAction.PICK;
 
 		if(!percept.getObstacles().contains(GridRelativeOrientation.FRONT)) {
 
