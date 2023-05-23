@@ -1,6 +1,8 @@
 package classes;
 
-public class TileStack {
+import java.io.Serializable;
+
+public class TileStack implements Serializable{
 	int noTiles;
 	String color;
 	

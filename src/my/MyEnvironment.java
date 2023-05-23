@@ -1,5 +1,8 @@
 package my;
 
+import jade.content.Concept;
+
+import java.io.Serializable;
 import java.util.*;
 
 import base.Action;
@@ -48,23 +51,23 @@ public class MyEnvironment extends AbstractGridEnvironment {
 	 * 
 	 * @author andreiolaru
 	 */
-	public static class MyAgentPerceptions implements Perceptions {
+	public static class MyAgentPerceptions implements Serializable {
 		protected Map<GridPosition, Hole> Holes;
 
 		protected Set<GridPosition> Obstacles;
 
 		protected Map<GridPosition, LinkedList<TileStack>> tileStacks;
 
-		protected List<GridAgentData>	otherAgents;
+		//protected List<GridAgentData>	otherAgents;
 
-		public MyAgentPerceptions(Map<GridPosition, Hole> holes, Set<GridPosition> obstacles,
-				Map<GridPosition, LinkedList<TileStack>> tileStacks, List<GridAgentData> otherAgents) {
-			super();
-			Holes = holes;
-			Obstacles = obstacles;
-			this.tileStacks = tileStacks;
-			this.otherAgents = otherAgents;
-		}
+//		public MyAgentPerceptions(Map<GridPosition, Hole> holes, Set<GridPosition> obstacles,
+//				Map<GridPosition, LinkedList<TileStack>> tileStacks, List<GridAgentData> otherAgents) {
+//			super();
+//			Holes = holes;
+//			Obstacles = obstacles;
+//			this.tileStacks = tileStacks;
+//			this.otherAgents = otherAgents;
+//		}
 
 		public MyAgentPerceptions(Map<GridPosition, Hole> holes, Set<GridPosition> obstacles,
 				Map<GridPosition, LinkedList<TileStack>> tileStacks) {
@@ -86,9 +89,9 @@ public class MyEnvironment extends AbstractGridEnvironment {
 			return tileStacks;
 		}
 
-		public List<GridAgentData> getOtherAgents() {
-			return otherAgents;
-		}
+//		public List<GridAgentData> getOtherAgents() {
+//			return otherAgents;
+//		}
 		
 	}
 	

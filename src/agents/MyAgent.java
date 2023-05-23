@@ -1,8 +1,11 @@
 package agents;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.io.*;
 import base.Environment;
 import classes.Message;
 import gridworld.*;
@@ -14,9 +17,11 @@ import jade.domain.FIPAAgentManagement.*;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.UnreadableException;
 //import platform.Log;
 import jade.proto.*;
 import my.MyAgentData;
+import my.MyEnvironment.MyAgentPerceptions;
 
 /**
  * The Agent.
@@ -70,6 +75,7 @@ public class MyAgent extends Agent {
     int currentActionInLoop = 0;
     boolean planWaiting = true;
     int operationTime;
+    MyAgentPerceptions perceptions;
 
     /**
      * @param childAID
@@ -97,6 +103,7 @@ public class MyAgent extends Agent {
     @SuppressWarnings("serial")
     @Override
     protected void setup() {
+    	
     	MyAgentData ag =new MyAgentData();
     	String agentColor = (String)getArguments()[0];
     	GridPosition agentPosition = (GridPosition)getArguments()[1];
@@ -176,8 +183,17 @@ public class MyAgent extends Agent {
             addBehaviour(new AchieveREInitiator(myAgent, request) {
                 protected void handleInform(ACLMessage inform) {
                     // Process the inform message received in response to the request
-                	if(inform.getConversationId()=="Perceptions")
-                		System.out.println("Am primit perceptiile: "+inform.getContent() + " of Agent: " + myAgent.getName());
+                	if(inform.getConversationId()=="Perceptions") {
+
+							try {
+								perceptions = (MyAgentPerceptions) inform.getContentObject();
+							} catch (UnreadableException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							System.out.println("Am primit perceptiile: "+ perceptions.getHoles() + " of Agent: " + myAgent.getName());
+						
+                	}
                 }
             });
             //block((long)2*operationTime);

@@ -1,6 +1,8 @@
 package classes;
 
-public class Hole {
+import java.io.Serializable;
+
+public class Hole implements Serializable {
 	int depth;
 	String color;
 	

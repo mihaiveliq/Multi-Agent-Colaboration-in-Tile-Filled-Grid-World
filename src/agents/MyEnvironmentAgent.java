@@ -1,5 +1,8 @@
 package agents;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import java.io.*;
 import java.sql.SQLOutput;
 import java.util.HashMap;
@@ -100,7 +103,7 @@ public class MyEnvironmentAgent extends Agent {
 
         //perceptiile initiale -> pot fi create si direct cand trimite mediul perceptiile agentilor
         //la fiecare interogare a agentilor pentru perceptii se vor crea perceptii noi cu variabilele curente din env
-        MyAgentPerceptions perceptions = new MyAgentPerceptions(holesPositions, obstacles, tileStackPositions);
+        //MyAgentPerceptions perceptions = new MyAgentPerceptions(holesPositions, obstacles, tileStackPositions);
     	
     	int widthMap = ((Integer) getArguments()[3]).intValue();
     	int heightMap = ((Integer) getArguments()[4]).intValue();
@@ -155,10 +158,9 @@ public class MyEnvironmentAgent extends Agent {
         });
 
         // receptor atunci cand i se cere starea mediului
-        MessageTemplate sendPerceptionsResponderTemplate = MessageTemplate.and(
+        MessageTemplate sendPerceptionsResponderTemplate = MessageTemplate.and(MessageTemplate.and(
                 MessageTemplate.MatchProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST),
-                MessageTemplate.MatchPerformative(ACLMessage.REQUEST));
-        sendPerceptionsResponderTemplate.MatchConversationId("Perceptions");
+                MessageTemplate.MatchPerformative(ACLMessage.REQUEST)),MessageTemplate.MatchConversationId("Perceptions"));
 
         addBehaviour(new AchieveREResponder(this, sendPerceptionsResponderTemplate) {
             @Override
@@ -174,7 +176,14 @@ public class MyEnvironmentAgent extends Agent {
                 ACLMessage inform = request.createReply();
                 inform.setConversationId("Perceptions");
                 inform.setPerformative(ACLMessage.INFORM);
-                inform.setContent("perceptii_inform");
+                MyAgentPerceptions perceptions = new MyAgentPerceptions(holesPositions, obstacles, tileStackPositions);
+                
+                try {
+					inform.setContentObject((Serializable) perceptions);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
                 return inform;
             }
         } );

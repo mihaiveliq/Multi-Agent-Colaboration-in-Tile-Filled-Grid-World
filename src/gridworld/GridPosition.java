@@ -1,11 +1,13 @@
 package gridworld;
 
+import java.io.Serializable;
+
 /**
  * Implementation for positions in a rectangular grid.
  * 
  * @author Andrei Olaru
  */
-public class GridPosition
+public class GridPosition implements Serializable
 {
 	/**
 	 * x coordinate
