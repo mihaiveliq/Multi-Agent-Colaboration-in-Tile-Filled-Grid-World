@@ -105,13 +105,17 @@ public class MyAgent extends Agent {
     public List<AID> getChildAgents() {
         return childAgents;
     }
+    
+    // convert a position to the corresponding position number 
     public int positionToNumber(GridPosition pos, int w) {
     	int res = pos.getX()*w+ pos.getY();
     	return res;
     }
+    
     public GridPosition numberToPosition(int pos, int w) {
     	return new GridPosition(pos/w, pos%w);
     }
+    
     public List<GridPosition> neighbors(GridPosition node) {
         int[][] dirs = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
         List<GridPosition> result = new ArrayList<>();
@@ -216,9 +220,7 @@ public class MyAgent extends Agent {
 
     @SuppressWarnings("serial")
     @Override
-    protected void setup() {
-    	
-    	
+    protected void setup() { 	
     	
     	MyAgentData ag =new MyAgentData();
     	String agentColor = (String)getArguments()[0];
@@ -247,6 +249,7 @@ public class MyAgent extends Agent {
 				//System.out.println("one neighbor for " + numberToPosition(i, widthMap) + " is " + neighbor);
 			}
 		}
+		//pentru testare am pus o pozitie de inceput si una de final sa gaseasca cel mai rapid drum
 		GridPosition source = new GridPosition(0,0);
 		GridPosition dest = new GridPosition(3,3);
 		printShortestDistance(adj, positionToNumber(source, widthMap), positionToNumber(dest, widthMap), v, widthMap);
