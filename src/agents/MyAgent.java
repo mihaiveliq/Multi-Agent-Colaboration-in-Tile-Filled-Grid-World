@@ -3,8 +3,12 @@ package agents;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.io.*;
 import base.Environment;
 import classes.Message;
@@ -76,6 +80,8 @@ public class MyAgent extends Agent {
     boolean planWaiting = true;
     int operationTime;
     MyAgentPerceptions perceptions;
+    Set<GridPosition> obstacles;
+    int widthMap, heightMap;
 
     /**
      * @param childAID
@@ -99,10 +105,120 @@ public class MyAgent extends Agent {
     public List<AID> getChildAgents() {
         return childAgents;
     }
+    public int positionToNumber(GridPosition pos, int w) {
+    	int res = pos.getX()*w+ pos.getY();
+    	return res;
+    }
+    public GridPosition numberToPosition(int pos, int w) {
+    	return new GridPosition(pos/w, pos%w);
+    }
+    public List<GridPosition> neighbors(GridPosition node) {
+        int[][] dirs = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+        List<GridPosition> result = new ArrayList<>();
+        for (int[] dir : dirs) {
+            GridPosition neighbor = new GridPosition(node.getX()+dir[0], node.getY()+dir[1]);
+            if (0 <= neighbor.getX() && neighbor.getX() < widthMap && 0 <= neighbor.getY() && neighbor.getY() < heightMap && !obstacles.contains(node)) {
+                result.add(neighbor);
+            }
+        }
+        return result;
+    }
+    
+ // function to print the shortest distance and path
+    // between source vertex and destination vertex
+    private void printShortestDistance(
+                     ArrayList<ArrayList<Integer>> adj,
+                             int s, int dest, int v, int w)
+    {
+        // predecessor[i] array stores predecessor of
+        // i and distance array stores distance of i
+        // from s
+        int pred[] = new int[v];
+        int dist[] = new int[v];
+ 
+        if (BFS(adj, s, dest, v, pred, dist) == false) {
+            System.out.println("Given source and destination" +
+                                         "are not connected");
+            return;
+        }
+ 
+        // LinkedList to store path
+        LinkedList<Integer> path = new LinkedList<Integer>();
+        int crawl = dest;
+        path.add(crawl);
+        while (pred[crawl] != -1) {
+            path.add(pred[crawl]);
+            crawl = pred[crawl];
+        }
+ 
+        // Print distance
+        System.out.println("Shortest path length is: " + dist[dest]);
+ 
+        // Print path
+        System.out.println("Path is ::");
+        for (int i = path.size() - 1; i >= 0; i--) {
+            System.out.print(numberToPosition(path.get(i), w) + " ");
+        }
+    }
+ 
+    // a modified version of BFS that stores predecessor
+    // of each vertex in array pred
+    // and its distance from source in array dist
+    private static boolean BFS(ArrayList<ArrayList<Integer>> adj, int src,
+                                  int dest, int v, int pred[], int dist[])
+    {
+        // a queue to maintain queue of vertices whose
+        // adjacency list is to be scanned as per normal
+        // BFS algorithm using LinkedList of Integer type
+        LinkedList<Integer> queue = new LinkedList<Integer>();
+ 
+        // boolean array visited[] which stores the
+        // information whether ith vertex is reached
+        // at least once in the Breadth first search
+        boolean visited[] = new boolean[v];
+ 
+        // initially all vertices are unvisited
+        // so v[i] for all i is false
+        // and as no path is yet constructed
+        // dist[i] for all i set to infinity
+        for (int i = 0; i < v; i++) {
+            visited[i] = false;
+            dist[i] = Integer.MAX_VALUE;
+            pred[i] = -1;
+        }
+ 
+        // now source is first to be visited and
+        // distance from source to itself should be 0
+        visited[src] = true;
+        dist[src] = 0;
+        queue.add(src);
+ 
+        // bfs Algorithm
+        while (!queue.isEmpty()) {
+            int u = queue.remove();
+            for (int i = 0; i < adj.get(u).size(); i++) {
+                if (visited[adj.get(u).get(i)] == false) {
+                    visited[adj.get(u).get(i)] = true;
+                    dist[adj.get(u).get(i)] = dist[u] + 1;
+                    pred[adj.get(u).get(i)] = u;
+                    queue.add(adj.get(u).get(i));
+ 
+                    // stopping condition (when we find
+                    // our destination)
+                    if (adj.get(u).get(i) == dest)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     @SuppressWarnings("serial")
     @Override
     protected void setup() {
+    	
+    	
     	
     	MyAgentData ag =new MyAgentData();
     	String agentColor = (String)getArguments()[0];
@@ -110,7 +226,30 @@ public class MyAgent extends Agent {
         parentAID = (AID)getArguments()[2];
         operationTime = ((Integer) getArguments()[3]).intValue();
 		this.gridAgentData = new GridAgentData(ag, agentColor, agentPosition, GridOrientation.NORTH);
-
+		obstacles =(Set<GridPosition>)getArguments()[4];
+		widthMap = ((Integer) getArguments()[5]).intValue();
+    	heightMap = ((Integer) getArguments()[6]).intValue();
+    	Set<GridPosition> all = new HashSet<>();
+    	for(int i = 0; i < heightMap; i++)
+			for(int j = 0; j < widthMap ; j++)
+				all.add(new GridPosition(i, j));
+		
+    	int v = widthMap * heightMap;
+    	ArrayList<ArrayList<Integer>> adj = new ArrayList<ArrayList<Integer>>(v);
+		for(int i = 0; i < v; i++) {
+			adj.add(new ArrayList<Integer>());
+		}
+		
+		for(int i = 0; i < v; i++) {
+			if(obstacles.contains(numberToPosition(i, widthMap))==false)
+			for(GridPosition neighbor: neighbors(numberToPosition(i, widthMap))) {
+				adj.get(i).add(positionToNumber(neighbor, widthMap));
+				//System.out.println("one neighbor for " + numberToPosition(i, widthMap) + " is " + neighbor);
+			}
+		}
+		GridPosition source = new GridPosition(0,0);
+		GridPosition dest = new GridPosition(3,3);
+		printShortestDistance(adj, positionToNumber(source, widthMap), positionToNumber(dest, widthMap), v, widthMap);
         if(parentAID != null) {
             addBehaviour(new WakerBehaviour(this, 0) {
                 @Override

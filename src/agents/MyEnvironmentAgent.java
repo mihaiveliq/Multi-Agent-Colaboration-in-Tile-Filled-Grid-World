@@ -112,7 +112,7 @@ public class MyEnvironmentAgent extends Agent {
         Map<String, GridPosition> agentConfig = (Map<String, GridPosition>)getArguments()[7];
 
     	env = new MyEnvironment();
-
+    	
     	Set<GridPosition> all = new HashSet<>();
     	for(int i = 0; i < widthMap; i++)
 			for(int j = 0; j < heightMap ; j++)

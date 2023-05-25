@@ -391,7 +391,7 @@ public abstract class AbstractGridEnvironment implements Environment
 		System.out.print("\n");
 		res += "\n";
 		// for each line
-		for(int j = y1; j >= y0; j--)
+		for(int j = y0; j <=y1; j++)
 		{
 			// first cell row
 			System.out.print((j < 10 ? " " : "") + j + "|");
